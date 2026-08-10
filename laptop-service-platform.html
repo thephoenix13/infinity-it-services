@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Laptop Service Management Platform — Solution Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:    #0f1f3d;
+  --navyDk:  #09162d;
+  --blue:    #1a56db;
+  --blueLt:  #eff6ff;
+  --teal:    #0694a2;
+  --tealLt:  #e0f7fa;
+  --amber:   #d97706;
+  --amberLt: #fffbeb;
+  --green:   #057a55;
+  --greenLt: #e8f5e9;
+  --red:     #c81e1e;
+  --redLt:   #fef2f2;
+  --ink:     #111827;
+  --muted:   #6b7280;
+  --subtle:  #9ca3af;
+  --border:  #e5e7eb;
+  --sand:    #f9fafb;
+  --white:   #fff;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;background:var(--sand);color:var(--ink);font-size:14.5px;line-height:1.7;}
+code{font-family:'JetBrains Mono',monospace;}
+
+/* NAV */
+.topnav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(15,31,61,.97);backdrop-filter:blur(8px);
+  display:flex;align-items:center;padding:0 clamp(16px,4vw,60px);height:54px;gap:24px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+.nav-logo{font-size:14px;font-weight:700;color:#fff;margin-right:auto;white-space:nowrap;letter-spacing:-.2px;}
+.nav-logo span{color:#60a5fa;}
+.topnav a{font-size:12.5px;font-weight:500;color:rgba(255,255,255,.5);text-decoration:none;transition:color .12s;white-space:nowrap;}
+.topnav a:hover{color:#fff;}
+
+/* HERO */
+.hero{background:var(--navy);padding:72px clamp(16px,5vw,80px) 64px;position:relative;overflow:hidden;}
+.hero-deco{position:absolute;top:-120px;right:-120px;width:600px;height:600px;pointer-events:none;}
+.hero-inner{width:100%;position:relative;z-index:1;}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(26,86,219,.2);border:1px solid rgba(96,165,250,.25);
+  color:#93c5fd;border-radius:99px;
+  padding:4px 14px;font-size:11.5px;font-weight:600;letter-spacing:.5px;
+  text-transform:uppercase;margin-bottom:18px;
+}
+.hero h1{font-size:clamp(26px,4vw,44px);font-weight:800;color:#fff;letter-spacing:-1px;line-height:1.15;margin-bottom:14px;}
+.hero h1 em{color:#60a5fa;font-style:normal;}
+.hero-sub{font-size:clamp(14px,1.5vw,16px);color:rgba(255,255,255,.55);line-height:1.7;max-width:680px;margin-bottom:32px;}
+.hero-now{
+  display:flex;align-items:flex-start;gap:12px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;padding:16px 20px;max-width:680px;
+}
+.hero-now-icon{font-size:18px;margin-top:1px;}
+.hero-now-text{font-size:13.5px;color:rgba(255,255,255,.5);line-height:1.65;}
+.hero-now-text strong{color:rgba(255,255,255,.8);}
+
+/* PAGE */
+.page{width:100%;padding:0 clamp(16px,5vw,80px) 80px;}
+
+/* SECTION */
+.section{padding-top:60px;}
+.sec-eyebrow{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--blue);margin-bottom:7px;}
+.section h2{font-size:clamp(20px,2.5vw,26px);font-weight:800;color:var(--navy);letter-spacing:-.4px;line-height:1.2;margin-bottom:8px;}
+.section .lead{font-size:15px;color:var(--muted);line-height:1.75;margin-bottom:32px;}
+.divider{height:1px;background:var(--border);margin:56px 0 0;}
+
+/* PROBLEM */
+.now-vs{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:20px;}
+.now-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:22px 24px;}
+.now-card .card-label{
+  font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  margin-bottom:12px;display:flex;align-items:center;gap:6px;
+}
+.now-card.bad .card-label{color:var(--red);}
+.now-card.good .card-label{color:var(--green);}
+.now-card ul{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.now-card li{font-size:13.5px;color:var(--muted);display:flex;gap:8px;align-items:flex-start;line-height:1.55;}
+.now-card.bad li::before{content:'✕';color:var(--red);font-weight:700;flex-shrink:0;margin-top:1px;}
+.now-card.good li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;margin-top:1px;}
+
+/* FLOW */
+.flow{display:grid;grid-template-columns:repeat(8,1fr);align-items:flex-start;gap:0;margin-bottom:8px;}
+.flow-step{
+  display:flex;flex-direction:column;align-items:center;
+  position:relative;
+}
+.flow-step:not(:last-child)::after{
+  content:'';position:absolute;top:22px;left:calc(50% + 22px);
+  width:calc(100% - 44px);height:2px;
+  background:var(--border);z-index:0;
+}
+.flow-dot{
+  width:44px;height:44px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;position:relative;z-index:1;
+  border:2px solid var(--border);background:var(--white);
+  margin-bottom:8px;
+}
+.flow-step.s1 .flow-dot{background:var(--blueLt);border-color:#bfdbfe;}
+.flow-step.s2 .flow-dot{background:#f3e8ff;border-color:#e9d5ff;}
+.flow-step.s3 .flow-dot{background:#fff7ed;border-color:#fed7aa;}
+.flow-step.s4 .flow-dot{background:#eef2ff;border-color:#c7d2fe;}
+.flow-step.s5 .flow-dot{background:var(--amberLt);border-color:#fde68a;}
+.flow-step.s6 .flow-dot{background:var(--tealLt);border-color:#a5f3fc;}
+.flow-step.s7 .flow-dot{background:var(--greenLt);border-color:#bbf7d0;}
+.flow-step.s8 .flow-dot{background:#fce7f3;border-color:#fbcfe8;}
+.flow-label{font-size:12px;font-weight:600;color:var(--ink);text-align:center;line-height:1.3;}
+.flow-sub{font-size:11px;color:var(--muted);text-align:center;margin-top:3px;line-height:1.35;}
+
+/* MODULES */
+.modules{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;}
+.mod{background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.mod-head{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 18px;border-bottom:1px solid var(--border);
+  background:var(--sand);
+}
+.mod-icon{
+  width:34px;height:34px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+.mod-title{font-size:13.5px;font-weight:700;color:var(--navy);}
+.mod-body{padding:16px 18px;}
+.mod-body ul{list-style:none;display:flex;flex-direction:column;gap:7px;}
+.mod-body li{font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:flex-start;line-height:1.55;}
+.mod-body li::before{content:'·';color:var(--blue);font-weight:900;flex-shrink:0;}
+
+/* STATUS FLOW */
+.status-flow{
+  display:flex;align-items:center;flex-wrap:wrap;gap:4px;
+  background:var(--white);border:1px solid var(--border);
+  border-radius:14px;padding:20px 24px;
+  margin-bottom:14px;
+}
+.st{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;min-width:80px;}
+.st-dot{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;border:2px solid var(--border);
+}
+.st-label{font-size:11px;font-weight:600;color:var(--ink);text-align:center;line-height:1.3;}
+.st-arrow{font-size:16px;color:var(--subtle);flex-shrink:0;padding:0 2px;margin-top:-16px;}
+
+.st.received .st-dot{background:#eff6ff;border-color:#bfdbfe;}
+.st.diagnosing .st-dot{background:#f3e8ff;border-color:#e9d5ff;}
+.st.parts .st-dot{background:var(--amberLt);border-color:#fde68a;}
+.st.inservice .st-dot{background:var(--tealLt);border-color:#a5f3fc;}
+.st.ready .st-dot{background:var(--greenLt);border-color:#bbf7d0;}
+.st.delivered .st-dot{background:#f0fdf4;border-color:#86efac;}
+
+.status-note{
+  font-size:13px;color:var(--muted);
+  background:var(--blueLt);border:1px solid #bfdbfe;
+  border-radius:10px;padding:12px 16px;line-height:1.6;
+}
+.status-note strong{color:var(--blue);}
+
+/* NOTIFICATIONS */
+.notif-list{display:flex;flex-direction:column;gap:10px;margin-bottom:12px;}
+.notif{
+  display:flex;align-items:flex-start;gap:14px;
+  background:var(--white);border:1px solid var(--border);
+  border-radius:12px;padding:14px 18px;
+}
+.notif-icon{
+  width:34px;height:34px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;margin-top:1px;
+}
+.notif-body{}
+.notif-trigger{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.notif-msg{
+  font-size:13px;color:var(--ink);line-height:1.55;
+  background:var(--sand);border:1px solid var(--border);
+  border-radius:8px;padding:8px 12px;font-family:'JetBrains Mono',monospace;
+  font-size:12px;
+}
+
+/* BRANCH / REPORTS */
+.report-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:14px;}
+.rstat{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:12px;padding:18px 18px 16px;
+}
+.rstat-n{font-size:26px;font-weight:800;color:var(--navy);letter-spacing:-1px;line-height:1;margin-bottom:4px;}
+.rstat-n em{color:var(--blue);font-style:normal;}
+.rstat-l{font-size:12.5px;color:var(--muted);}
+.report-features{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;
+}
+.rf{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:10px;padding:14px 16px;
+  font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:flex-start;line-height:1.55;
+}
+.rf::before{content:'→';color:var(--blue);font-weight:700;flex-shrink:0;}
+
+/* TECH OPTIONS */
+.options{display:flex;flex-direction:column;gap:14px;}
+.option{
+  background:var(--white);border:2px solid var(--border);
+  border-radius:14px;padding:22px 24px;position:relative;
+}
+.option.rec{border-color:#bfdbfe;}
+.option-rec-tag{
+  position:absolute;top:-1px;right:20px;
+  background:var(--blue);color:#fff;
+  font-size:11px;font-weight:700;letter-spacing:.5px;
+  text-transform:uppercase;padding:4px 12px;
+  border-radius:0 0 8px 8px;
+}
+.option-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.option-name{font-size:15px;font-weight:700;color:var(--navy);}
+.option-tag{
+  font-size:11px;font-weight:600;padding:2px 8px;
+  border-radius:99px;
+}
+.tag-fast{background:var(--greenLt);color:var(--green);}
+.tag-custom{background:var(--blueLt);color:var(--blue);}
+.tag-mid{background:var(--amberLt);color:var(--amber);}
+.option p{font-size:13.5px;color:var(--muted);line-height:1.65;margin-bottom:10px;}
+.option ul{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.option li{font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:flex-start;}
+.option li::before{content:'·';color:var(--blue);font-weight:900;flex-shrink:0;}
+
+/* PHASES */
+.phases{display:flex;flex-direction:column;gap:14px;}
+.phase{
+  display:flex;gap:20px;
+  background:var(--white);border:1px solid var(--border);
+  border-radius:14px;padding:20px 22px;align-items:flex-start;
+}
+.phase-num{
+  width:36px;height:36px;border-radius:10px;
+  background:var(--navy);color:#fff;
+  font-size:13px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.phase-body{}
+.phase-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px;display:flex;align-items:center;gap:10px;}
+.phase-time{font-size:11.5px;font-weight:600;color:var(--muted);background:var(--sand);padding:2px 8px;border-radius:99px;}
+.phase-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:8px;}
+.phase-items{display:flex;flex-wrap:wrap;gap:6px;}
+.phase-item{
+  background:var(--sand);border:1px solid var(--border);
+  color:var(--ink);font-size:12px;font-weight:500;
+  padding:2px 10px;border-radius:99px;
+}
+
+/* CALLOUT */
+.callout{border-radius:12px;padding:14px 18px;font-size:13.5px;display:flex;gap:10px;line-height:1.65;margin:12px 0;}
+.callout-blue{background:var(--blueLt);color:#1e40af;border:1px solid #bfdbfe;}
+.callout-green{background:var(--greenLt);color:#065f46;border:1px solid #bbf7d0;}
+.callout-amber{background:var(--amberLt);color:#92400e;border:1px solid #fde68a;}
+.callout-ico{font-size:15px;flex-shrink:0;margin-top:1px;}
+
+footer{
+  text-align:center;font-size:12px;color:var(--subtle);
+  padding:28px clamp(16px,5vw,80px) 36px;border-top:1px solid var(--border);
+}
+
+/* COST TABLE */
+.cost-section-title{font-size:13px;font-weight:700;color:var(--navy);letter-spacing:.2px;margin:28px 0 10px;display:flex;align-items:center;gap:8px;}
+.cost-section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.cost-table{width:100%;border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:4px;}
+.cost-row{display:grid;grid-template-columns:2fr 2fr 1.5fr 3fr;border-bottom:1px solid var(--border);}
+.cost-row:last-child{border-bottom:none;}
+.cost-row.head{background:var(--navy);}
+.cost-row.head > div{padding:10px 16px;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:rgba(255,255,255,.5);}
+.cost-row:not(.head) > div{padding:12px 16px;font-size:13px;line-height:1.5;}
+.cost-row:not(.head):nth-child(even){background:var(--white);}
+.cost-row:not(.head):nth-child(odd){background:var(--sand);}
+.cost-service{font-weight:600;color:var(--ink);}
+.cost-provider{color:var(--muted);}
+.cost-amount{font-weight:700;color:var(--blue);white-space:nowrap;}
+.cost-note{color:var(--muted);font-size:12px;line-height:1.55;}
+.cost-onetime{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:4px;}
+.cost-ot-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 18px;}
+.cost-ot-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:6px;}
+.cost-ot-amount{font-size:20px;font-weight:800;color:var(--navy);letter-spacing:-.5px;margin-bottom:4px;}
+.cost-ot-note{font-size:12px;color:var(--muted);line-height:1.55;}
+.cost-total{
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  background:var(--navy);color:#fff;border-radius:14px;padding:20px 24px;margin-top:20px;
+}
+.cost-total-label{font-size:13px;color:rgba(255,255,255,.6);margin-bottom:4px;}
+.cost-total-value{font-size:24px;font-weight:800;letter-spacing:-.5px;}
+.cost-total-value em{color:#60a5fa;font-style:normal;}
+.cost-total-group{flex:1;min-width:160px;}
+
+/* ROLE CARDS */
+.role-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+.role-card{background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.role-head{display:flex;align-items:center;gap:14px;padding:16px 18px;color:#fff;}
+.role-icon{font-size:22px;flex-shrink:0;line-height:1;}
+.role-name{font-size:14px;font-weight:800;letter-spacing:-.2px;}
+.role-sub{font-size:11.5px;opacity:.65;margin-top:2px;}
+.role-list{list-style:none;padding:14px 18px;display:flex;flex-direction:column;gap:8px;}
+.role-list li{font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:flex-start;line-height:1.5;}
+.role-list li::before{content:'·';color:var(--blue);font-weight:900;flex-shrink:0;margin-top:1px;}
+
+/* ── RESPONSIVE ────────────────────────────────────────────── */
+
+/* Tablet: ≤900px */
+@media(max-width:900px){
+  .section{padding-top:44px;}
+  .divider{margin:44px 0 0;}
+
+  /* flow: 4 across × 2 rows */
+  .flow{grid-template-columns:repeat(4,1fr);gap:8px 0;}
+  .flow-step:not(:last-child)::after{
+    left:calc(50% + 22px);
+    width:calc(100% - 44px);
+  }
+  /* hide the connecting line for steps that are last in a row */
+  .flow-step:nth-child(4)::after{display:none;}
+
+  /* status flow: let arrows hide, badges wrap in 4s */
+  .st{min-width:70px;}
+  .st-arrow{font-size:13px;padding:0 1px;}
+}
+
+/* Mobile: ≤600px */
+@media(max-width:600px){
+  /* nav: hide links, keep logo */
+  .topnav{gap:0;}
+  .topnav a{display:none;}
+
+  /* hero */
+  .hero{padding:48px clamp(16px,5vw,32px) 40px;}
+  .hero-now{max-width:100%;}
+
+  /* page */
+  .page{padding:0 clamp(16px,5vw,24px) 60px;}
+
+  /* section */
+  .section{padding-top:36px;}
+  .divider{margin:36px 0 0;}
+
+  /* flow: 2 across × 4 rows */
+  .flow{grid-template-columns:repeat(2,1fr);gap:16px 0;}
+  .flow-step:not(:last-child)::after{display:none;}
+  .flow-dot{width:40px;height:40px;font-size:16px;}
+  .flow-label{font-size:11.5px;}
+
+  /* status flow: wrap into grid, hide arrows */
+  .status-flow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px;}
+  .st{min-width:auto;flex:none;}
+  .st-arrow{display:none;}
+
+  /* modules */
+  .modules{grid-template-columns:1fr;}
+
+  /* report grid */
+  .report-grid{grid-template-columns:1fr 1fr;}
+  .report-features{grid-template-columns:1fr;}
+
+  /* notif msg: smaller mono text */
+  .notif-msg{font-size:11px;}
+
+  /* cost table: stack rows as cards */
+  .cost-row{grid-template-columns:1fr 1fr;}
+  .cost-row.head{display:none;}
+  .cost-row:not(.head) > div{padding:8px 14px;}
+  .cost-row:not(.head){position:relative;padding:12px 14px 12px 0;display:flex;flex-wrap:wrap;gap:2px 12px;border-bottom:1px solid var(--border);}
+  .cost-row:not(.head) > div{padding:2px 0 2px 14px;}
+  .cost-service{width:100%;font-size:13px;border-left:3px solid var(--blue);}
+  .cost-provider{font-size:12px;}
+  .cost-amount{font-size:12px;}
+  .cost-note{width:100%;font-size:11.5px;}
+
+  /* option */
+  .option{padding:18px 16px;}
+
+  /* phase */
+  .phase{flex-direction:column;gap:12px;}
+  .phase-num{width:30px;height:30px;font-size:12px;}
+}
+
+/* Small mobile: ≤400px */
+@media(max-width:400px){
+  .status-flow{grid-template-columns:repeat(3,1fr);}
+  .report-grid{grid-template-columns:1fr;}
+  .flow{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="topnav">
+  <div class="nav-logo">Laptop Service <span>Platform</span></div>
+  <a href="#flow">Workflow</a>
+  <a href="#modules">Modules</a>
+  <a href="#notifications">Notifications</a>
+  <a href="#reports">Reports</a>
+  <a href="#phases">Build phases</a>
+  <a href="#costs">Costs</a>
+</nav>
+
+
+<!-- HERO -->
+<div class="hero">
+  <svg class="hero-deco" viewBox="0 0 600 600" fill="none">
+    <circle cx="600" cy="0" r="520" stroke="#60a5fa" stroke-width="1" opacity=".06"/>
+    <circle cx="600" cy="0" r="360" stroke="#60a5fa" stroke-width="1.5" opacity=".06"/>
+    <circle cx="600" cy="0" r="200" stroke="#fff" stroke-width=".5" opacity=".03"/>
+  </svg>
+  <div class="hero-inner">
+    <div class="hero-badge">Solution Brief</div>
+    <h1>Laptop Service<br><em>Management Platform</em></h1>
+    <p class="hero-sub">A centralised web platform for a 7-branch laptop servicing agency — from customer intake to job closure, with real-time tracking and automated customer notifications.</p>
+    <div class="hero-now">
+      <div class="hero-now-icon">⚠️</div>
+      <div class="hero-now-text">
+        <strong>Current state:</strong> Job sheets on Excel, customer updates over WhatsApp, no shared view across branches, no audit trail, no consolidated reporting. Every branch operates as an island.
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="page">
+
+  <!-- FLOW -->
+  <div class="section" id="flow">
+    <div class="sec-eyebrow">Core workflow</div>
+    <h2>Eight steps from intake to closure</h2>
+    <p class="lead">Every job follows the same lifecycle. The platform enforces this — no step can be skipped, and every transition is timestamped and logged.</p>
+
+    <div class="flow">
+      <div class="flow-step s1">
+        <div class="flow-dot">📋</div>
+        <div class="flow-label">Customer<br>Intake</div>
+        <div class="flow-sub">Device + issue<br>logged</div>
+      </div>
+      <div class="flow-step s2">
+        <div class="flow-dot">🔖</div>
+        <div class="flow-label">Job Sheet<br>Created</div>
+        <div class="flow-sub">Auto number<br>+ receipt</div>
+      </div>
+      <div class="flow-step s3">
+        <div class="flow-dot">🔍</div>
+        <div class="flow-label">Inspection</div>
+        <div class="flow-sub">Parts + photos<br>of damage</div>
+      </div>
+      <div class="flow-step s4">
+        <div class="flow-dot">💬</div>
+        <div class="flow-label">Estimate &amp;<br>Approval</div>
+        <div class="flow-sub">Customer<br>approves cost</div>
+      </div>
+      <div class="flow-step s5">
+        <div class="flow-dot">🔧</div>
+        <div class="flow-label">Service<br>in Progress</div>
+        <div class="flow-sub">Assigned to<br>technician</div>
+      </div>
+      <div class="flow-step s6">
+        <div class="flow-dot">✅</div>
+        <div class="flow-label">Work<br>Complete</div>
+        <div class="flow-sub">Post-service<br>photos added</div>
+      </div>
+      <div class="flow-step s7">
+        <div class="flow-dot">💳</div>
+        <div class="flow-label">Payment<br>Collected</div>
+        <div class="flow-sub">Invoice<br>generated</div>
+      </div>
+      <div class="flow-step s8">
+        <div class="flow-dot">📦</div>
+        <div class="flow-label">Device<br>Handed Over</div>
+        <div class="flow-sub">Job sheet<br>closed</div>
+      </div>
+    </div>
+
+    <div class="callout callout-blue" style="margin-top:20px;">
+      <span class="callout-ico">ℹ</span>
+      <div><strong>Job sheet cannot be closed without payment.</strong> The system enforces this — the "Mark as Delivered" action is locked until payment is recorded. This removes the most common gap between service completion and revenue collection.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+
+  <!-- MODULES -->
+  <div class="section" id="modules">
+    <div class="sec-eyebrow">Platform modules</div>
+    <h2>Everything in one system</h2>
+    <p class="lead">Eight core modules covering every role — front desk staff, technicians, branch managers, and head office.</p>
+
+    <div class="modules">
+
+      <div class="mod">
+        <div class="mod-head">
+          <div class="mod-icon" style="background:#eff6ff;">📋</div>
+          <div class="mod-title">Customer Intake</div>
+        </div>
+        <div class="mod-body">
+          <ul>
+            <li>Customer name, phone number, email (optional)</li>
+            <li>Device: brand, model, serial number</li>
+            <li>Reported issue (free text + category dropdown)</li>
+            <li>Accessories received checklist (charger, bag, mouse, etc.)</li>
+            <li>Estimated delivery date</li>
+            <li>Intake staff name + branch auto-stamped</li>
+            <li>Auto-generated job sheet number (e.g. JS-2026-08-00142)</li>
+            <li>WhatsApp/SMS confirmation sent to customer on creation</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mod">
+        <div class="mod-head">
+          <div class="mod-icon" style="background:#fff7ed;">🔍</div>
+          <div class="mod-title">Inspection &amp; Estimation</div>
+        </div>
+        <div class="mod-body">
+          <ul>
+            <li>Technician opens inspection against the job sheet after intake</li>
+            <li>Add parts/components that need repair or replacement — item, description, unit cost, quantity</li>
+            <li>Upload photos of the damage or issue at the time of inspection</li>
+            <li>Labour charges added separately alongside parts cost</li>
+            <li>Auto-calculated total estimate with line-item breakdown</li>
+            <li>Estimate shared with customer via WhatsApp/SMS with one click</li>
+            <li>Customer response (Approve / Decline) logged against the job</li>
+            <li>Job cannot move to "In Service" until customer approval is recorded</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mod">
+        <div class="mod-head">
+          <div class="mod-icon" style="background:#f3e8ff;">🔧</div>
+          <div class="mod-title">Job &amp; Technician Management</div>
+        </div>
+        <div class="mod-body">
+          <ul>
+            <li>Assign job to a technician at intake or after inspection</li>
+            <li>Technician updates status from their own login</li>
+            <li>Internal notes per job (visible to staff, not customer)</li>
+            <li>Parts used log — item, quantity, cost (pre-filled from approved estimate)</li>
+            <li>Post-service photo upload — photos of parts fixed, modified, or replaced</li>
+            <li>Diagnosis notes and resolution summary</li>
+            <li>Estimated vs actual time tracking</li>
+            <li>Flag job as "Awaiting Parts" with expected arrival date</li>
+            <li>Technician workload view — open jobs per person</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mod">
+        <div class="mod-head">
+          <div class="mod-icon" style="background:#e0f7fa;">📊</div>
+          <div class="mod-title">Job Status Tracking</div>
+        </div>
+        <div class="mod-body">
+          <ul>
+            <li>Status pipeline: Received → Inspection → Estimate Sent → Approved → Awaiting Parts → In Service → Ready for Pickup → Delivered</li>
+            <li>Every status change timestamped and attributed to staff member</li>
+            <li>Customer auto-notified at configured status milestones</li>
+            <li>Overdue flag when job exceeds estimated delivery date</li>
+            <li>Branch manager can override or escalate any job</li>
+            <li>Search and filter by status, branch, date, technician, or customer</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mod">
+        <div class="mod-head">
+          <div class="mod-icon" style="background:#e8f5e9;">💳</div>
+          <div class="mod-title">Payment &amp; Invoicing</div>
+        </div>
+        <div class="mod-body">
+          <ul>
+            <li>Invoice auto-generated from parts + labour at job completion</li>
+            <li>Payment modes: cash, UPI, card — recorded per job</li>
+            <li>Advance payment option at intake (deposit)</li>
+            <li>Job delivery locked until payment is fully recorded</li>
+            <li>Invoice PDF printable / shareable on WhatsApp</li>
+            <li>Partial payment + balance tracking</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mod">
+        <div class="mod-head">
+          <div class="mod-icon" style="background:#fffbeb;">🏢</div>
+          <div class="mod-title">Branch Management</div>
+        </div>
+        <div class="mod-body">
+          <ul>
+            <li>Each branch has its own view — staff see only their branch's jobs by default</li>
+            <li>Branch Manager role: sees all jobs at their branch, can reassign technicians</li>
+            <li>Head Office role: full view across all 7 branches simultaneously</li>
+            <li>Branch-level performance comparison in reports</li>
+            <li>Configurable working hours and holiday schedule per branch</li>
+            <li>Branch-specific job sheet numbering prefix</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mod">
+        <div class="mod-head">
+          <div class="mod-icon" style="background:#fce7f3;">👤</div>
+          <div class="mod-title">Customer History</div>
+        </div>
+        <div class="mod-body">
+          <ul>
+            <li>Customer profile auto-created on first intake by phone number</li>
+            <li>Full history of all past jobs — any branch, any device</li>
+            <li>Repeat customer identified at intake — no re-entering details</li>
+            <li>Device history: all past services for a specific serial number</li>
+            <li>Outstanding balance flag if previous invoice unpaid</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+
+  <!-- STATUS FLOW -->
+  <div class="section">
+    <div class="sec-eyebrow">Job status lifecycle</div>
+    <h2>Eight statuses, every transition logged</h2>
+    <p class="lead">Staff update status from their device. Every change is instant across all branches and triggers the appropriate customer notification.</p>
+
+    <div class="status-flow">
+      <div class="st received">
+        <div class="st-dot">📥</div>
+        <div class="st-label">Received</div>
+      </div>
+      <div class="st-arrow">→</div>
+      <div class="st diagnosing">
+        <div class="st-dot">🔍</div>
+        <div class="st-label">Inspection</div>
+      </div>
+      <div class="st-arrow">→</div>
+      <div class="st" style="flex:1;min-width:90px;">
+        <div class="st-dot" style="background:#eef2ff;border-color:#c7d2fe;">💬</div>
+        <div class="st-label">Estimate<br>Sent</div>
+      </div>
+      <div class="st-arrow">→</div>
+      <div class="st" style="flex:1;min-width:90px;">
+        <div class="st-dot" style="background:#f0fdf4;border-color:#86efac;">👍</div>
+        <div class="st-label">Approved</div>
+      </div>
+      <div class="st-arrow">→</div>
+      <div class="st parts">
+        <div class="st-dot">⏳</div>
+        <div class="st-label">Awaiting<br>Parts</div>
+      </div>
+      <div class="st-arrow">→</div>
+      <div class="st inservice">
+        <div class="st-dot">🔧</div>
+        <div class="st-label">In Service</div>
+      </div>
+      <div class="st-arrow">→</div>
+      <div class="st ready">
+        <div class="st-dot">✅</div>
+        <div class="st-label">Ready for<br>Pickup</div>
+      </div>
+      <div class="st-arrow">→</div>
+      <div class="st delivered">
+        <div class="st-dot">📦</div>
+        <div class="st-label">Delivered</div>
+      </div>
+    </div>
+
+    <div class="status-note">
+      <strong>Awaiting Parts</strong> is optional — jobs can move directly from Approved to In Service if parts are available. The "Awaiting Parts" status is used when the technician needs to order a part and the job is on hold. An expected arrival date can be set so overdue alerts fire correctly. <strong>Approved</strong> is a hard gate — no technician can move a job to In Service without a recorded customer approval against the inspection estimate.
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+
+  <!-- NOTIFICATIONS -->
+  <div class="section" id="notifications">
+    <div class="sec-eyebrow">Customer notifications</div>
+    <h2>Automated WhatsApp / SMS — zero manual effort</h2>
+    <p class="lead">Customers receive updates at key moments without staff having to remember to send them. This eliminates the bulk of inbound "what's the status?" calls.</p>
+
+    <div class="notif-list">
+
+      <div class="notif">
+        <div class="notif-icon" style="background:#eff6ff;">📋</div>
+        <div class="notif-body">
+          <div class="notif-trigger">Trigger: Job created</div>
+          <div class="notif-msg">Hi Ramesh, your laptop (Dell Inspiron, SN: DL2024819) has been received at our Kothrud branch. Your Job ID is JS-2026-08-00142. We'll keep you updated. — TechFix Service</div>
+        </div>
+      </div>
+
+      <div class="notif">
+        <div class="notif-icon" style="background:#eef2ff;">💬</div>
+        <div class="notif-body">
+          <div class="notif-trigger">Trigger: Estimate shared (status → Estimate Sent)</div>
+          <div class="notif-msg">Hi Ramesh, inspection of your laptop (JS-2026-08-00142) is complete. Estimated repair cost: ₹2,200 (Screen replacement: ₹1,800 + Labour: ₹400). Reply YES to approve or call us at 9876543210. — TechFix Service</div>
+        </div>
+      </div>
+
+      <div class="notif">
+        <div class="notif-icon" style="background:var(--tealLt);">🔧</div>
+        <div class="notif-body">
+          <div class="notif-trigger">Trigger: Work begins (status → In Service)</div>
+          <div class="notif-msg">Hi Ramesh, our technician has started working on your laptop (JS-2026-08-00142). Expected completion: Today by 6 PM. We'll notify you when it's ready. — TechFix Service</div>
+        </div>
+      </div>
+
+      <div class="notif">
+        <div class="notif-icon" style="background:var(--greenLt);">✅</div>
+        <div class="notif-body">
+          <div class="notif-trigger">Trigger: Status → Ready for Pickup</div>
+          <div class="notif-msg">Great news, Ramesh! Your laptop is ready for pickup at our Kothrud branch. Amount due: ₹2,200. Branch timings: 10 AM – 7 PM. Job ID: JS-2026-08-00142. — TechFix Service</div>
+        </div>
+      </div>
+
+      <div class="notif">
+        <div class="notif-icon" style="background:#f0fdf4;">📦</div>
+        <div class="notif-body">
+          <div class="notif-trigger">Trigger: Job closed (device handed over)</div>
+          <div class="notif-msg">Your laptop has been delivered. Invoice: ₹2,200 paid. Thank you for choosing TechFix. For any issues within 30 days, quote Job ID JS-2026-08-00142. — TechFix Service</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="callout callout-amber">
+      <span class="callout-ico">⚠</span>
+      <div><strong>WhatsApp Business API required</strong> for automated sends. Setup takes 2–3 days and requires a dedicated business number. Alternatively, SMS works out of the box with any provider (e.g. Textlocal, MSG91). Both can run in parallel.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+
+  <!-- REPORTS -->
+  <div class="section" id="reports">
+    <div class="sec-eyebrow">Reporting &amp; head office view</div>
+    <h2>One dashboard for all 7 branches</h2>
+    <p class="lead">Head Office gets a live view of every branch — no calls, no compiled Excel sheets, no waiting until end of day.</p>
+
+    <div class="report-grid">
+      <div class="rstat">
+        <div class="rstat-n">Live</div>
+        <div class="rstat-l">Open jobs across all branches, updated the moment a status changes</div>
+      </div>
+      <div class="rstat">
+        <div class="rstat-n">7</div>
+        <div class="rstat-l">Branches visible on one dashboard, filterable by any branch or all at once</div>
+      </div>
+      <div class="rstat">
+        <div class="rstat-n"><em>∞</em></div>
+        <div class="rstat-l">Report history retained — look back at any date, any branch, any technician</div>
+      </div>
+    </div>
+
+    <div class="report-features">
+      <div class="rf">Jobs by status — how many are received, in service, ready, overdue right now</div>
+      <div class="rf">Revenue by branch — daily, weekly, monthly, custom date range</div>
+      <div class="rf">Technician performance — jobs completed, average turnaround time per person</div>
+      <div class="rf">Overdue jobs report — jobs past estimated delivery date, with aging</div>
+      <div class="rf">Parts cost vs revenue — per job and rolled up by branch</div>
+      <div class="rf">Customer return rate — repeat customers per branch</div>
+      <div class="rf">Branch comparison — side-by-side volume and revenue across all 7 branches</div>
+      <div class="rf">Export to Excel / PDF — any report, any date range, one click</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+
+  <!-- PHASES -->
+  <div class="section" id="phases">
+    <div class="sec-eyebrow">Feature &amp; Functionality Plan</div>
+    <h2>What each user can do</h2>
+    <p class="lead">Every role gets exactly the access and tools they need — nothing more, nothing less.</p>
+
+    <div class="role-cards">
+
+      <div class="role-card">
+        <div class="role-head" style="background:var(--navy);">
+          <div class="role-icon">🏢</div>
+          <div>
+            <div class="role-name">Admin</div>
+            <div class="role-sub">Head Office</div>
+          </div>
+        </div>
+        <ul class="role-list">
+          <li>Full cross-branch view — all jobs and all branches simultaneously</li>
+          <li>User management — add/remove staff, assign roles and branches</li>
+          <li>Branch configuration — numbering prefix, working hours, holiday schedule</li>
+          <li>Head Office live dashboard — open jobs, overdue counts, branch status</li>
+          <li>Revenue and performance reports across all 7 branches</li>
+          <li>Branch comparison — side-by-side volume and revenue</li>
+          <li>Override or escalate any job from any branch</li>
+          <li>Export any report to Excel or PDF</li>
+        </ul>
+      </div>
+
+      <div class="role-card">
+        <div class="role-head" style="background:var(--teal);">
+          <div class="role-icon">📊</div>
+          <div>
+            <div class="role-name">Manager</div>
+            <div class="role-sub">Branch Manager</div>
+          </div>
+        </div>
+        <ul class="role-list">
+          <li>Full view of all jobs at their branch</li>
+          <li>Reassign or transfer jobs between technicians</li>
+          <li>Override or escalate any job status at their branch</li>
+          <li>Branch performance reports — daily and weekly summary</li>
+          <li>Overdue job alerts and follow-up tracking</li>
+          <li>Branch-level export and reporting</li>
+          <li>View technician workload and open job count per person</li>
+        </ul>
+      </div>
+
+      <div class="role-card">
+        <div class="role-head" style="background:var(--amber);">
+          <div class="role-icon">🔧</div>
+          <div>
+            <div class="role-name">Engineer</div>
+            <div class="role-sub">Technician</div>
+          </div>
+        </div>
+        <ul class="role-list">
+          <li>View assigned jobs and personal job queue</li>
+          <li>Open and fill inspection form for each job</li>
+          <li>Add parts and components with unit cost and quantity</li>
+          <li>Upload damage photos during inspection</li>
+          <li>Upload post-service photos on job completion</li>
+          <li>Update job status from mobile app (iOS + Android)</li>
+          <li>Push notifications for new assignments and escalations</li>
+          <li>Mobile inspection form with direct camera capture</li>
+          <li>Diagnosis notes and resolution summary</li>
+        </ul>
+      </div>
+
+      <div class="role-card">
+        <div class="role-head" style="background:#7c3aed;">
+          <div class="role-icon">🖥️</div>
+          <div>
+            <div class="role-name">Front Desk</div>
+            <div class="role-sub">Intake Staff</div>
+          </div>
+        </div>
+        <ul class="role-list">
+          <li>Customer intake — name, phone, device details, reported issue</li>
+          <li>Accessories checklist at intake (charger, bag, mouse, etc.)</li>
+          <li>Auto job sheet number generated on creation</li>
+          <li>Repeat customer auto-detected by phone number</li>
+          <li>Assign job to a technician at intake or later</li>
+          <li>Record payment — cash, UPI, card, partial or advance deposit</li>
+          <li>Print or share job receipt and invoice via WhatsApp</li>
+          <li>Job closure and device handover confirmation</li>
+        </ul>
+      </div>
+
+      <div class="role-card">
+        <div class="role-head" style="background:var(--green);">
+          <div class="role-icon">👤</div>
+          <div>
+            <div class="role-name">Customer</div>
+            <div class="role-sub">End User</div>
+          </div>
+        </div>
+        <ul class="role-list">
+          <li>WhatsApp/SMS confirmation on job creation with Job ID</li>
+          <li>Inspection estimate received via WhatsApp with line-item breakdown</li>
+          <li>Approve or decline estimate by replying on WhatsApp</li>
+          <li>Notification when work begins and when device is ready</li>
+          <li>Self-service tracking portal — live job status without calling</li>
+          <li>View inspection photos and post-service photos via portal</li>
+          <li>Approve estimate via portal (alternative to WhatsApp)</li>
+          <li>Download invoice from portal</li>
+          <li>Warranty period tracking and 30-day follow-up</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+
+  <!-- COSTS -->
+  <div class="section" id="costs">
+    <div class="sec-eyebrow">Deployment costs</div>
+    <h2>What it costs to run</h2>
+    <p class="lead">All infrastructure is pay-as-you-go or low fixed monthly fees — no large upfront commitments beyond the build itself.</p>
+
+    <div class="cost-section-title">Annual recurring</div>
+    <div class="cost-table">
+      <div class="cost-row head">
+        <div>Service</div><div>Billed</div><div>Annual cost</div><div>Notes</div>
+      </div>
+      <div class="cost-row">
+        <div class="cost-service">Cloud hosting</div>
+        <div class="cost-provider">Annually</div>
+        <div class="cost-amount">₹36,000 / yr</div>
+        <div class="cost-note">Hosts the web application; includes CDN, SSL, and auto-scaling. Covers all branches on a single deployment.</div>
+      </div>
+      <div class="cost-row">
+        <div class="cost-service">Database, Auth &amp; Realtime</div>
+        <div class="cost-provider">Annually</div>
+        <div class="cost-amount">₹30,000 / yr</div>
+        <div class="cost-note">Postgres database, user authentication, realtime job-status sync across branches, and storage for all inspection and service photos.</div>
+      </div>
+      <div class="cost-row">
+        <div class="cost-service">WhatsApp Business API — platform</div>
+        <div class="cost-provider">Annually</div>
+        <div class="cost-amount">₹18,000–24,000 / yr</div>
+        <div class="cost-note">Platform licence fee for automated WhatsApp sends — estimates, job updates, and notifications. Required to connect to the WhatsApp Business API.</div>
+      </div>
+      <div class="cost-row">
+        <div class="cost-service">WhatsApp — per conversation</div>
+        <div class="cost-provider">Usage-based</div>
+        <div class="cost-amount">₹0.30–0.85 / msg</div>
+        <div class="cost-note">Utility messages (job updates, estimates) ~₹0.30 per conversation window. Marketing messages (follow-ups, warranty checks) ~₹0.85. Billed on actual usage.</div>
+      </div>
+
+      <div class="cost-row">
+        <div class="cost-service">Domain name</div>
+        <div class="cost-provider">Annually</div>
+        <div class="cost-amount">At actuals</div>
+        <div class="cost-note">Paid annually based on chosen domain. A .in domain runs ~₹800–1,200/year; a .com runs ~₹900–1,500/year. Branch subdomains are included at no extra cost.</div>
+      </div>
+      <div class="cost-row">
+        <div class="cost-service">iOS — App Store</div>
+        <div class="cost-provider">Annually</div>
+        <div class="cost-amount">₹8,200 / yr</div>
+        <div class="cost-note">Apple Developer Program membership. Required to publish and maintain the app on the iOS App Store. Renewed every year.</div>
+      </div>
+      <div class="cost-row">
+        <div class="cost-service">Android — Play Store</div>
+        <div class="cost-provider">One-time</div>
+        <div class="cost-amount">₹2,100 one-time</div>
+        <div class="cost-note">Play Console registration fee. Paid once — no annual renewal required. Covers all future app updates and releases on Android.</div>
+      </div>
+    </div>
+
+    <div class="cost-total">
+      <div class="cost-total-group">
+        <div class="cost-total-label">Estimated annual infrastructure cost</div>
+        <div class="cost-total-value"><em>~₹92,000–98,000</em> / year</div>
+      </div>
+      <div class="cost-total-group">
+        <div class="cost-total-label">One-time Android store registration</div>
+        <div class="cost-total-value"><em>~₹2,100</em> one-time</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<footer>
+  Laptop Service Management Platform · Solution Brief · August 2026
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ServiceDesk</title>
+<style>
+:root {
+  --bg:#f2f2f7;--surface:#fff;--sidebar-bg:rgba(242,242,247,.9);
+  --sep:rgba(60,60,67,.12);--sep2:rgba(60,60,67,.06);
+  --blue:#007aff;--green:#34c759;--orange:#ff9500;--red:#ff3b30;--purple:#af52de;
+  --label:#000;--label2:rgba(60,60,67,.6);--label3:rgba(60,60,67,.3);--label4:rgba(60,60,67,.16);
+  --fill:rgba(120,120,128,.2);--fill2:rgba(120,120,128,.14);--fill3:rgba(120,120,128,.08);
+  --blue-fill:rgba(0,122,255,.1);--green-fill:rgba(52,199,89,.1);
+  --orange-fill:rgba(255,149,0,.1);--red-fill:rgba(255,59,48,.1);--purple-fill:rgba(175,82,222,.1);
+  --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:20px;
+  --sh-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh-md:0 4px 16px rgba(0,0,0,.08),0 1px 4px rgba(0,0,0,.04);
+  --sh-lg:0 8px 40px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.06);
+  --font:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif;
+  --mono:'SF Mono','Fira Code',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{font-family:var(--font);background:var(--bg);color:var(--label);
+  display:flex;flex-direction:column;font-size:15px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;}
+
+/* NAV */
+.topbar{
+  height:52px;flex-shrink:0;position:sticky;top:0;z-index:100;
+  background:rgba(255,255,255,.85);backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  border-bottom:1px solid var(--sep);
+  display:flex;align-items:center;padding:0 20px;gap:12px;
+}
+.logo{font-size:15px;font-weight:700;letter-spacing:-.3px;margin-right:auto;}
+.logo span{color:var(--blue);}
+.branch-picker{
+  display:flex;align-items:center;gap:6px;
+  background:var(--fill3);border:1px solid var(--sep);
+  border-radius:99px;padding:5px 12px;
+  font-size:13px;font-weight:500;color:var(--label2);cursor:pointer;
+}
+.branch-picker select{
+  border:none;background:transparent;font:inherit;
+  color:inherit;cursor:pointer;outline:none;
+}
+.avatar{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--blue);color:#fff;
+  font-size:13px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.btn-new{
+  display:flex;align-items:center;gap:5px;
+  background:var(--blue);color:#fff;border:none;
+  border-radius:99px;padding:6px 14px;
+  font:600 13px/1 var(--font);cursor:pointer;
+  transition:all .12s;letter-spacing:-.1px;
+}
+.btn-new:hover{background:#0066dd;}
+.btn-new:active{transform:scale(.97);}
+
+/* LAYOUT */
+.layout{display:flex;flex:1;overflow:hidden;}
+
+/* SIDEBAR */
+.sidebar{
+  width:210px;flex-shrink:0;overflow-y:auto;
+  background:var(--sidebar-bg);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-right:1px solid var(--sep);
+  padding:12px 8px;display:flex;flex-direction:column;gap:2px;
+}
+.sec-label{
+  font-size:11px;font-weight:600;color:var(--label3);
+  letter-spacing:.5px;text-transform:uppercase;
+  padding:10px 10px 4px;margin-top:4px;
+}
+.sec-label:first-child{margin-top:0;}
+.nav-item{
+  display:flex;align-items:center;gap:9px;
+  padding:8px 10px;border-radius:var(--r-sm);
+  font-size:14px;font-weight:500;color:var(--label2);
+  cursor:pointer;transition:all .1s;user-select:none;
+}
+.nav-item:hover{background:var(--fill2);color:var(--label);}
+.nav-item.active{background:var(--blue);color:#fff;}
+.ni-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0;}
+.badge{
+  margin-left:auto;background:var(--red);color:#fff;
+  font-size:11px;font-weight:700;padding:1px 6px;
+  border-radius:99px;min-width:18px;text-align:center;
+}
+.nav-item.active .badge{background:rgba(255,255,255,.3);}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;padding:24px;}
+.page{display:none;}
+.page.active{display:block;}
+
+/* PAGE HEADER */
+.ph{margin-bottom:22px;}
+.ph-title{font-size:26px;font-weight:700;letter-spacing:-.5px;line-height:1.15;}
+.ph-sub{font-size:14px;color:var(--label2);margin-top:3px;}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px;}
+.stat{
+  background:var(--surface);border-radius:var(--r-lg);
+  border:1px solid var(--sep);box-shadow:var(--sh-sm);
+  padding:16px 18px;
+}
+.stat-lbl{font-size:12px;font-weight:500;color:var(--label2);margin-bottom:8px;display:flex;align-items:center;gap:5px;}
+.stat-val{font-size:28px;font-weight:700;letter-spacing:-1px;line-height:1;}
+.stat-sub{font-size:12px;color:var(--label3);margin-top:5px;}
+.stat-sub em{font-style:normal;color:var(--green);font-weight:600;}
+.stat-sub.warn em{color:var(--orange);}
+.stat-sub.bad em{color:var(--red);}
+
+/* SECTION HEADER */
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.sh-title{font-size:17px;font-weight:600;letter-spacing:-.2px;}
+.sh-link{font-size:14px;font-weight:500;color:var(--blue);cursor:pointer;}
+.sh-link:hover{opacity:.8;}
+
+/* CARD + TABLE */
+.card{
+  background:var(--surface);border-radius:var(--r-lg);
+  border:1px solid var(--sep);box-shadow:var(--sh-sm);
+  overflow:hidden;margin-bottom:22px;
+}
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead tr{border-bottom:1px solid var(--sep);}
+th{
+  font-size:11.5px;font-weight:600;color:var(--label3);
+  letter-spacing:.4px;text-transform:uppercase;
+  padding:10px 16px;text-align:left;white-space:nowrap;
+}
+td{
+  padding:12px 16px;font-size:13.5px;color:var(--label);
+  border-bottom:1px solid var(--sep2);vertical-align:middle;
+}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--fill3);}
+.jid{font-family:var(--mono);font-size:12px;color:var(--label2);}
+.cname{font-weight:500;}
+.csub{font-size:12px;color:var(--label2);}
+
+/* CHIPS */
+.chip{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 9px;border-radius:99px;
+  font-size:12px;font-weight:600;white-space:nowrap;
+}
+.chip::before{content:'';width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.c-received{background:var(--fill2);color:var(--label2);}           .c-received::before{background:var(--label3);}
+.c-diagnosing{background:var(--purple-fill);color:var(--purple);}    .c-diagnosing::before{background:var(--purple);}
+.c-parts{background:var(--orange-fill);color:var(--orange);}         .c-parts::before{background:var(--orange);}
+.c-service{background:var(--blue-fill);color:var(--blue);}           .c-service::before{background:var(--blue);}
+.c-ready{background:var(--green-fill);color:var(--green);}           .c-ready::before{background:var(--green);}
+.c-delivered{background:var(--fill2);color:var(--label3);}           .c-delivered::before{background:var(--label3);}
+.c-overdue{background:var(--red-fill);color:var(--red);}             .c-overdue::before{background:var(--red);}
+
+/* BRANCH GRID */
+.branch-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:22px;}
+.bc{
+  background:var(--surface);border-radius:var(--r-lg);
+  border:1px solid var(--sep);box-shadow:var(--sh-sm);padding:16px 18px;
+}
+.bc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.bc-name{font-size:15px;font-weight:600;letter-spacing:-.1px;}
+.bc-total{font-size:11.5px;font-weight:600;color:var(--label3);}
+.bc-bars{display:flex;flex-direction:column;gap:7px;}
+.br-row{display:flex;align-items:center;gap:8px;font-size:12px;}
+.br-lbl{width:90px;color:var(--label2);flex-shrink:0;}
+.br-track{flex:1;height:5px;background:var(--fill2);border-radius:99px;overflow:hidden;}
+.br-fill{height:100%;border-radius:99px;}
+.br-n{width:16px;text-align:right;color:var(--label);font-weight:600;flex-shrink:0;}
+
+/* FORM */
+.form-wrap{max-width:620px;}
+.form-card{
+  background:var(--surface);border-radius:var(--r-xl);
+  border:1px solid var(--sep);box-shadow:var(--sh-md);padding:24px;
+}
+.fsec{
+  font-size:12px;font-weight:600;color:var(--label2);
+  letter-spacing:.3px;text-transform:uppercase;
+  margin-bottom:12px;padding-top:18px;
+  border-top:1px solid var(--sep);
+}
+.fsec:first-child{padding-top:0;border-top:none;}
+.frow{display:grid;gap:12px;margin-bottom:12px;}
+.frow.c2{grid-template-columns:1fr 1fr;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+label{font-size:13px;font-weight:500;color:var(--label2);}
+input,select,textarea{
+  font-family:var(--font);font-size:14px;color:var(--label);
+  background:var(--fill3);border:1px solid var(--sep);
+  border-radius:var(--r-md);padding:9px 12px;
+  outline:none;transition:all .15s;width:100%;
+}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--blue);background:var(--blue-fill);
+  box-shadow:0 0 0 3px rgba(0,122,255,.12);
+}
+textarea{resize:vertical;min-height:72px;line-height:1.5;}
+select{cursor:pointer;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;}
+.checks{
+  display:flex;flex-wrap:wrap;gap:8px;
+  background:var(--fill3);border:1px solid var(--sep);
+  border-radius:var(--r-md);padding:12px 14px;
+}
+.chk{display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;}
+.chk input{width:15px;height:15px;padding:0;accent-color:var(--blue);}
+.form-actions{
+  display:flex;gap:8px;justify-content:flex-end;
+  margin-top:20px;padding-top:18px;border-top:1px solid var(--sep);
+}
+.btn{
+  font-family:var(--font);font-size:14px;font-weight:600;
+  padding:9px 18px;border-radius:var(--r-md);border:none;cursor:pointer;
+  transition:all .12s;letter-spacing:-.1px;
+}
+.btn:active{transform:scale(.97);}
+.btn-p{background:var(--blue);color:#fff;}
+.btn-p:hover{background:#0066dd;}
+.btn-s{background:var(--fill2);color:var(--label);}
+.btn-s:hover{background:var(--fill);}
+
+/* REPORTS */
+.rstat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px;}
+.rs{
+  background:var(--surface);border-radius:var(--r-lg);
+  border:1px solid var(--sep);box-shadow:var(--sh-sm);
+  padding:18px 20px;
+}
+.rs-val{font-size:34px;font-weight:700;letter-spacing:-1.5px;line-height:1;margin-bottom:4px;}
+.rs-lbl{font-size:13px;color:var(--label2);}
+.bar-chart{
+  background:var(--surface);border-radius:var(--r-lg);
+  border:1px solid var(--sep);box-shadow:var(--sh-sm);
+  padding:20px;margin-bottom:22px;
+}
+.bc-title{font-size:15px;font-weight:600;letter-spacing:-.1px;margin-bottom:18px;}
+.bars{display:flex;align-items:flex-end;gap:10px;height:130px;}
+.bcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;}
+.btrack{width:100%;background:var(--fill2);border-radius:6px 6px 0 0;flex:1;display:flex;align-items:flex-end;overflow:hidden;}
+.bfill{width:100%;border-radius:6px 6px 0 0;background:var(--blue);}
+.blbl{font-size:10.5px;color:var(--label3);font-weight:500;text-align:center;}
+.bval{font-size:11.5px;font-weight:600;color:var(--label);}
+
+/* FILTER BAR */
+.filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;}
+.fb{
+  font-family:var(--font);font-size:13px;font-weight:500;
+  padding:5px 13px;border-radius:99px;
+  border:1px solid var(--sep);background:var(--surface);
+  color:var(--label2);cursor:pointer;transition:all .1s;
+}
+.fb:hover{border-color:var(--blue);color:var(--blue);}
+.fb.active{background:var(--blue);border-color:var(--blue);color:#fff;}
+
+/* DETAIL PANEL */
+.overlay{
+  display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,.35);backdrop-filter:blur(4px);
+  align-items:stretch;justify-content:flex-end;
+}
+.overlay.show{display:flex;}
+.panel{
+  width:460px;background:var(--surface);
+  box-shadow:var(--sh-lg);display:flex;flex-direction:column;
+  overflow:hidden;animation:slideIn .28s cubic-bezier(.4,0,.2,1);
+}
+@keyframes slideIn{from{transform:translateX(100%);}to{transform:translateX(0);}}
+.panel-hdr{
+  padding:14px 18px;border-bottom:1px solid var(--sep);
+  display:flex;align-items:center;gap:10px;flex-shrink:0;
+  background:rgba(255,255,255,.85);backdrop-filter:blur(20px);
+}
+.panel-close{
+  width:26px;height:26px;border-radius:50%;border:none;
+  background:var(--fill2);color:var(--label2);cursor:pointer;
+  font-size:13px;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:background .1s;
+}
+.panel-close:hover{background:var(--fill);}
+.panel-title{font-size:15px;font-weight:600;letter-spacing:-.2px;margin-right:auto;}
+.panel-body{flex:1;overflow-y:auto;padding:16px;}
+.dr{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:10px 0;border-bottom:1px solid var(--sep2);
+}
+.dr:last-child{border-bottom:none;}
+.dk{font-size:13px;color:var(--label2);width:120px;flex-shrink:0;padding-top:1px;}
+.dv{font-size:14px;font-weight:500;flex:1;}
+.tl{margin-top:16px;background:var(--fill3);border-radius:var(--r-md);padding:14px;}
+.tl-title{font-size:11px;font-weight:600;color:var(--label2);letter-spacing:.4px;text-transform:uppercase;margin-bottom:12px;}
+.tl-item{display:flex;gap:10px;margin-bottom:10px;}
+.tl-item:last-child{margin-bottom:0;}
+.tl-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0;}
+.tl-ev{font-size:13px;font-weight:500;}
+.tl-meta{font-size:12px;color:var(--label3);margin-top:1px;}
+.panel-actions{
+  padding:14px 18px;border-top:1px solid var(--sep);
+  display:flex;gap:7px;flex-wrap:wrap;flex-shrink:0;
+}
+.ab{
+  font-family:var(--font);font-size:13px;font-weight:600;
+  padding:7px 13px;border-radius:var(--r-sm);border:none;cursor:pointer;
+  transition:all .1s;letter-spacing:-.1px;
+}
+.ab:active{transform:scale(.97);}
+.ab-blue{background:var(--blue-fill);color:var(--blue);}
+.ab-blue:hover{background:rgba(0,122,255,.18);}
+.ab-green{background:var(--green-fill);color:var(--green);}
+.ab-green:hover{background:rgba(52,199,89,.18);}
+.ab-orange{background:var(--orange-fill);color:var(--orange);}
+.ab-orange:hover{background:rgba(255,149,0,.18);}
+.ab-muted{background:var(--fill2);color:var(--label2);}
+.ab-muted:hover{background:var(--fill);}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:24px;left:50%;
+  transform:translateX(-50%) translateY(80px);
+  background:rgba(0,0,0,.82);backdrop-filter:blur(20px);
+  color:#fff;font-size:14px;font-weight:500;
+  padding:11px 18px;border-radius:var(--r-lg);
+  box-shadow:var(--sh-lg);z-index:500;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+  white-space:nowrap;pointer-events:none;
+}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* EMPTY */
+.empty{text-align:center;padding:48px 20px;color:var(--label3);}
+.empty-ico{font-size:36px;margin-bottom:10px;}
+.empty-txt{font-size:15px;font-weight:500;}
+.empty-sub{font-size:13px;margin-top:3px;}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="logo">Service<span>Desk</span></div>
+  <div class="branch-picker">
+    🏢&nbsp;
+    <select onchange="switchBranch(this.value)">
+      <option value="all">All Branches</option>
+      <option>Kothrud</option><option>Wakad</option><option>Hadapsar</option>
+      <option>Viman Nagar</option><option>Shivajinagar</option><option>Pimpri</option><option>Aundh</option>
+    </select>
+  </div>
+  <button class="btn-new" onclick="navigate('intake')">+ New Job</button>
+  <div class="avatar">RK</div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sec-label">Overview</div>
+    <div class="nav-item active" onclick="navigate('dashboard')"><span class="ni-icon">⊞</span>Dashboard</div>
+    <div class="sec-label">Jobs</div>
+    <div class="nav-item" onclick="navigate('jobs')"><span class="ni-icon">🗂</span>All Jobs<span class="badge" id="openBadge">11</span></div>
+    <div class="nav-item" onclick="navigate('intake')"><span class="ni-icon">＋</span>New Intake</div>
+    <div class="nav-item" onclick="filterNav('overdue')"><span class="ni-icon">⚠️</span>Overdue<span class="badge">2</span></div>
+    <div class="sec-label">Reports</div>
+    <div class="nav-item" onclick="navigate('reports')"><span class="ni-icon">📊</span>Reports</div>
+  </aside>
+
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="ph">
+        <div class="ph-title">Good morning, Rajesh 👋</div>
+        <div class="ph-sub">Saturday, 9 August 2026 · All Branches</div>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-lbl">🗂 Open Jobs</div>
+          <div class="stat-val">11</div>
+          <div class="stat-sub warn"><em>2 overdue</em></div>
+        </div>
+        <div class="stat">
+          <div class="stat-lbl">📥 Today's Intake</div>
+          <div class="stat-val">4</div>
+          <div class="stat-sub"><em>+2</em> vs yesterday</div>
+        </div>
+        <div class="stat">
+          <div class="stat-lbl">✅ Ready for Pickup</div>
+          <div class="stat-val">3</div>
+          <div class="stat-sub">Customers notified</div>
+        </div>
+        <div class="stat">
+          <div class="stat-lbl">💳 Revenue Today</div>
+          <div class="stat-val">₹9,400</div>
+          <div class="stat-sub"><em>+₹1,200</em> vs yesterday</div>
+        </div>
+      </div>
+
+      <div class="sh"><div class="sh-title">Branch Overview</div><div class="sh-link" onclick="navigate('reports')">Full report →</div></div>
+      <div class="branch-grid">
+        <div class="bc">
+          <div class="bc-head"><div class="bc-name">Kothrud</div><div class="bc-total">5 open</div></div>
+          <div class="bc-bars">
+            <div class="br-row"><div class="br-lbl">In Service</div><div class="br-track"><div class="br-fill" style="width:60%;background:var(--blue);height:100%"></div></div><div class="br-n">3</div></div>
+            <div class="br-row"><div class="br-lbl">Ready</div><div class="br-track"><div class="br-fill" style="width:20%;background:var(--green);height:100%"></div></div><div class="br-n">1</div></div>
+            <div class="br-row"><div class="br-lbl">Overdue</div><div class="br-track"><div class="br-fill" style="width:20%;background:var(--red);height:100%"></div></div><div class="br-n">1</div></div>
+          </div>
+        </div>
+        <div class="bc">
+          <div class="bc-head"><div class="bc-name">Wakad</div><div class="bc-total">3 open</div></div>
+          <div class="bc-bars">
+            <div class="br-row"><div class="br-lbl">Diagnosing</div><div class="br-track"><div class="br-fill" style="width:33%;background:var(--purple);height:100%"></div></div><div class="br-n">1</div></div>
+            <div class="br-row"><div class="br-lbl">In Service</div><div class="br-track"><div class="br-fill" style="width:33%;background:var(--blue);height:100%"></div></div><div class="br-n">1</div></div>
+            <div class="br-row"><div class="br-lbl">Ready</div><div class="br-track"><div class="br-fill" style="width:33%;background:var(--green);height:100%"></div></div><div class="br-n">1</div></div>
+          </div>
+        </div>
+        <div class="bc">
+          <div class="bc-head"><div class="bc-name">Hadapsar</div><div class="bc-total">2 open</div></div>
+          <div class="bc-bars">
+            <div class="br-row"><div class="br-lbl">Awaiting Parts</div><div class="br-track"><div class="br-fill" style="width:50%;background:var(--orange);height:100%"></div></div><div class="br-n">1</div></div>
+            <div class="br-row"><div class="br-lbl">In Service</div><div class="br-track"><div class="br-fill" style="width:50%;background:var(--blue);height:100%"></div></div><div class="br-n">1</div></div>
+          </div>
+        </div>
+        <div class="bc">
+          <div class="bc-head"><div class="bc-name">Viman Nagar</div><div class="bc-total">1 open</div></div>
+          <div class="bc-bars">
+            <div class="br-row"><div class="br-lbl">Overdue</div><div class="br-track"><div class="br-fill" style="width:100%;background:var(--red);height:100%"></div></div><div class="br-n">1</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sh"><div class="sh-title">Recent Jobs</div><div class="sh-link" onclick="navigate('jobs')">View all →</div></div>
+      <div class="card"><div class="tw"><table>
+        <thead><tr><th>Job ID</th><th>Customer</th><th>Device</th><th>Branch</th><th>Status</th><th>Due</th></tr></thead>
+        <tbody id="recentBody"></tbody>
+      </table></div></div>
+    </div>
+
+    <!-- ALL JOBS -->
+    <div class="page" id="page-jobs">
+      <div class="ph">
+        <div class="ph-title">All Jobs</div>
+        <div class="ph-sub" id="jobsSub">11 open jobs</div>
+      </div>
+      <div class="filters">
+        <button class="fb active" onclick="setFilter('all',this)">All</button>
+        <button class="fb" onclick="setFilter('received',this)">Received</button>
+        <button class="fb" onclick="setFilter('diagnosing',this)">Diagnosing</button>
+        <button class="fb" onclick="setFilter('parts',this)">Awaiting Parts</button>
+        <button class="fb" onclick="setFilter('service',this)">In Service</button>
+        <button class="fb" onclick="setFilter('ready',this)">Ready</button>
+        <button class="fb" onclick="setFilter('overdue',this)">⚠ Overdue</button>
+      </div>
+      <div class="card"><div class="tw"><table>
+        <thead><tr><th>Job ID</th><th>Customer</th><th>Device</th><th>Issue</th><th>Branch</th><th>Technician</th><th>Status</th><th>Due</th></tr></thead>
+        <tbody id="allBody"></tbody>
+      </table></div></div>
+    </div>
+
+    <!-- INTAKE -->
+    <div class="page" id="page-intake">
+      <div class="ph">
+        <div class="ph-title">New Job Intake</div>
+        <div class="ph-sub">Create a job sheet — customer is notified automatically via WhatsApp</div>
+      </div>
+      <div class="form-wrap"><div class="form-card">
+        <div class="fsec">Customer Details</div>
+        <div class="frow c2">
+          <div class="fg"><label>Full Name *</label><input type="text" id="f-name" placeholder="e.g. Ramesh Patil"></div>
+          <div class="fg"><label>Phone Number *</label><input type="tel" id="f-phone" placeholder="9876543210"></div>
+        </div>
+        <div class="frow">
+          <div class="fg"><label>Email (optional)</label><input type="email" placeholder="ramesh@email.com"></div>
+        </div>
+
+        <div class="fsec">Device Details</div>
+        <div class="frow c2">
+          <div class="fg"><label>Brand *</label>
+            <select><option value="">Select brand</option>
+              <option>Dell</option><option>HP</option><option>Lenovo</option>
+              <option>Asus</option><option>Acer</option><option>Apple</option>
+              <option>MSI</option><option>Samsung</option><option>Other</option>
+            </select>
+          </div>
+          <div class="fg"><label>Model</label><input type="text" placeholder="e.g. Inspiron 15 3520"></div>
+        </div>
+        <div class="frow c2">
+          <div class="fg"><label>Serial Number</label><input type="text" placeholder="e.g. DL2024819"></div>
+          <div class="fg"><label>Estimated Delivery *</label><input type="date"></div>
+        </div>
+
+        <div class="fsec">Issue Details</div>
+        <div class="frow">
+          <div class="fg"><label>Issue Category *</label>
+            <select><option value="">Select category</option>
+              <option>Screen / Display</option><option>Battery</option><option>Keyboard</option>
+              <option>Charging Port</option><option>Motherboard</option><option>Storage (HDD/SSD)</option>
+              <option>RAM</option><option>Hinge / Physical Damage</option>
+              <option>Software / OS</option><option>Overheating</option><option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="frow">
+          <div class="fg"><label>Reported Issue</label>
+            <textarea placeholder="Describe in detail what the customer reported..."></textarea>
+          </div>
+        </div>
+
+        <div class="fsec">Accessories Received</div>
+        <div class="checks">
+          <label class="chk"><input type="checkbox"> Charger</label>
+          <label class="chk"><input type="checkbox"> Laptop Bag</label>
+          <label class="chk"><input type="checkbox"> Mouse</label>
+          <label class="chk"><input type="checkbox"> External HDD</label>
+          <label class="chk"><input type="checkbox"> USB Dongle</label>
+          <label class="chk"><input type="checkbox"> Other</label>
+        </div>
+
+        <div class="fsec">Assignment</div>
+        <div class="frow c2">
+          <div class="fg"><label>Branch *</label>
+            <select>
+              <option>Kothrud</option><option>Wakad</option><option>Hadapsar</option>
+              <option>Viman Nagar</option><option>Shivajinagar</option><option>Pimpri</option><option>Aundh</option>
+            </select>
+          </div>
+          <div class="fg"><label>Assign Technician</label>
+            <select>
+              <option value="">Unassigned</option>
+              <option>Suresh Kumar</option><option>Amit Deshpande</option>
+              <option>Priya Joshi</option><option>Rahul Shinde</option><option>Deepak More</option>
+            </select>
+          </div>
+        </div>
+        <div class="frow">
+          <div class="fg" style="max-width:200px"><label>Advance Payment (₹)</label><input type="number" placeholder="0" min="0"></div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-s" onclick="navigate('jobs')">Cancel</button>
+          <button class="btn btn-p" onclick="submitIntake()">Create Job Sheet &amp; Notify Customer</button>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- REPORTS -->
+    <div class="page" id="page-reports">
+      <div class="ph">
+        <div class="ph-title">Reports</div>
+        <div class="ph-sub">All branches · August 2026</div>
+      </div>
+      <div class="rstat-grid">
+        <div class="rs"><div class="rs-val">47</div><div class="rs-lbl">Jobs this month</div></div>
+        <div class="rs"><div class="rs-val">₹1.8L</div><div class="rs-lbl">Revenue this month</div></div>
+        <div class="rs"><div class="rs-val">2.3d</div><div class="rs-lbl">Avg turnaround time</div></div>
+      </div>
+      <div class="bar-chart">
+        <div class="bc-title">Revenue by Branch — August 2026</div>
+        <div class="bars">
+          <div class="bcol"><div class="bval">₹38k</div><div class="btrack"><div class="bfill" style="height:100%"></div></div><div class="blbl">Kothrud</div></div>
+          <div class="bcol"><div class="bval">₹31k</div><div class="btrack"><div class="bfill" style="height:82%"></div></div><div class="blbl">Viman Ngr</div></div>
+          <div class="bcol"><div class="bval">₹29k</div><div class="btrack"><div class="bfill" style="height:76%"></div></div><div class="blbl">Wakad</div></div>
+          <div class="bcol"><div class="bval">₹24k</div><div class="btrack"><div class="bfill" style="height:63%"></div></div><div class="blbl">Hadapsar</div></div>
+          <div class="bcol"><div class="bval">₹22k</div><div class="btrack"><div class="bfill" style="height:58%"></div></div><div class="blbl">Shivajingr</div></div>
+          <div class="bcol"><div class="bval">₹18k</div><div class="btrack"><div class="bfill" style="height:47%"></div></div><div class="blbl">Pimpri</div></div>
+          <div class="bcol"><div class="bval">₹15k</div><div class="btrack"><div class="bfill" style="height:39%"></div></div><div class="blbl">Aundh</div></div>
+        </div>
+      </div>
+      <div class="sh"><div class="sh-title">Technician Performance</div></div>
+      <div class="card"><div class="tw"><table>
+        <thead><tr><th>Technician</th><th>Branch</th><th>Jobs Completed</th><th>Avg Turnaround</th><th>Revenue</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Suresh Kumar</strong></td><td>Kothrud</td><td>14</td><td>1.8d</td><td>₹42,000</td></tr>
+          <tr><td><strong>Amit Deshpande</strong></td><td>Wakad</td><td>11</td><td>2.4d</td><td>₹31,500</td></tr>
+          <tr><td><strong>Priya Joshi</strong></td><td>Viman Nagar</td><td>9</td><td>2.1d</td><td>₹27,800</td></tr>
+          <tr><td><strong>Rahul Shinde</strong></td><td>Hadapsar</td><td>7</td><td>3.2d</td><td>₹18,400</td></tr>
+          <tr><td><strong>Deepak More</strong></td><td>Shivajinagar</td><td>6</td><td>2.8d</td><td>₹16,200</td></tr>
+        </tbody>
+      </table></div></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- DETAIL PANEL -->
+<div class="overlay" id="overlay" onclick="maybeClose(event)">
+  <div class="panel" id="panel">
+    <div class="panel-hdr">
+      <button class="panel-close" onclick="closePanel()">✕</button>
+      <div class="panel-title" id="pTitle"></div>
+      <div id="pChip"></div>
+    </div>
+    <div class="panel-body" id="pBody"></div>
+    <div class="panel-actions" id="pActions"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const JOBS = [
+  {id:'JS-2026-08-00142',name:'Ramesh Patil',phone:'9876543210',device:'Dell Inspiron 15',serial:'DL2024819',issue:'Screen flickering above 90°',cat:'Screen / Display',branch:'Kothrud',tech:'Suresh Kumar',status:'service',due:'2026-08-09',date:'2026-08-07',amt:3500,paid:500,notes:'Hinges slightly loose — check ribbon cable first.'},
+  {id:'JS-2026-08-00143',name:'Sunita Deshmukh',phone:'9823456781',device:'HP Pavilion x360',serial:'HP2023441',issue:'Battery draining in under 1 hour',cat:'Battery',branch:'Kothrud',tech:'Suresh Kumar',status:'ready',due:'2026-08-09',date:'2026-08-07',amt:2800,paid:0,notes:'Battery replaced. Tested at 5.5h runtime.'},
+  {id:'JS-2026-08-00144',name:'Arjun Mehta',phone:'9011223344',device:'Lenovo ThinkPad E14',serial:'LN20231102',issue:'Keyboard dead after water spill',cat:'Keyboard',branch:'Kothrud',tech:'Suresh Kumar',status:'overdue',due:'2026-08-07',date:'2026-08-05',amt:4200,paid:1000,notes:'Motherboard check pending — corrosion on lower PCB.'},
+  {id:'JS-2026-08-00145',name:'Neha Kulkarni',phone:'9922334455',device:'Asus VivoBook 15',serial:'AS2024998',issue:'Not charging at all',cat:'Charging Port',branch:'Kothrud',tech:'Suresh Kumar',status:'diagnosing',due:'2026-08-11',date:'2026-08-08',amt:null,paid:0,notes:''},
+  {id:'JS-2026-08-00146',name:'Vikas Joshi',phone:'9833221100',device:'Dell XPS 13',serial:'DL2022019',issue:'Overheating and shutting down',cat:'Overheating',branch:'Kothrud',tech:'',status:'received',due:'2026-08-12',date:'2026-08-09',amt:null,paid:0,notes:''},
+  {id:'JS-2026-08-00147',name:'Priya Nair',phone:'9745678901',device:'MacBook Air M2',serial:'C02XJ0WK',issue:'Trackpad not clicking',cat:'Other',branch:'Wakad',tech:'Amit Deshpande',status:'service',due:'2026-08-10',date:'2026-08-08',amt:2200,paid:500,notes:'Trackpad cable ordered. Glass hairline crack noted at intake.'},
+  {id:'JS-2026-08-00148',name:'Rohit Sharma',phone:'9012345678',device:'HP Spectre x360',serial:'HP2024556',issue:'Hinge broken — lid won\'t stay',cat:'Hinge / Physical Damage',branch:'Wakad',tech:'Amit Deshpande',status:'ready',due:'2026-08-09',date:'2026-08-07',amt:5500,paid:2000,notes:'Replacement hinge fitted. Cosmetic scratches noted at intake.'},
+  {id:'JS-2026-08-00149',name:'Kavitha Reddy',phone:'9900112233',device:'Acer Aspire 5',serial:'AC2023771',issue:'Blue screen errors, OS crashing',cat:'Software / OS',branch:'Wakad',tech:'',status:'diagnosing',due:'2026-08-11',date:'2026-08-09',amt:null,paid:0,notes:''},
+  {id:'JS-2026-08-00150',name:'Manish Gupta',phone:'9855667788',device:'Lenovo IdeaPad 3',serial:'LN20221089',issue:'RAM upgrade + SSD install',cat:'RAM',branch:'Hadapsar',tech:'Rahul Shinde',status:'parts',due:'2026-08-12',date:'2026-08-07',amt:6800,paid:2000,notes:'8GB DDR4 + 512GB SSD ordered. ETA Aug 11.'},
+  {id:'JS-2026-08-00151',name:'Shreya Patil',phone:'9766554433',device:'HP 15s',serial:'HP2023001',issue:'Display dim at max brightness',cat:'Screen / Display',branch:'Hadapsar',tech:'Rahul Shinde',status:'service',due:'2026-08-10',date:'2026-08-08',amt:3200,paid:1000,notes:'Backlight inverter suspected.'},
+  {id:'JS-2026-08-00152',name:'Kiran Bhat',phone:'9922112233',device:'MSI GF63 Gaming',serial:'MS2024332',issue:'GPU overheating — throttling in games',cat:'Overheating',branch:'Viman Nagar',tech:'Priya Joshi',status:'overdue',due:'2026-08-06',date:'2026-08-04',amt:2500,paid:500,notes:'Thermal paste replaced. Fan bearing worn — part sourcing delayed.'},
+];
+
+const SM = {
+  received:   {l:'Received',     c:'c-received'},
+  diagnosing: {l:'Diagnosing',   c:'c-diagnosing'},
+  parts:      {l:'Awaiting Parts',c:'c-parts'},
+  service:    {l:'In Service',   c:'c-service'},
+  ready:      {l:'Ready for Pickup',c:'c-ready'},
+  delivered:  {l:'Delivered',    c:'c-delivered'},
+  overdue:    {l:'Overdue',      c:'c-overdue'},
+};
+
+function chip(s){const m=SM[s]||SM.received;return `<span class="chip ${m.c}">${m.l}</span>`;}
+
+function rowRecent(j){
+  return `<tr style="cursor:pointer" onclick="openDetail('${j.id}')">
+    <td><span class="jid">${j.id}</span></td>
+    <td><div class="cname">${j.name}</div><div class="csub">${j.phone}</div></td>
+    <td><div class="cname">${j.device}</div><div class="csub">${j.serial}</div></td>
+    <td>${j.branch}</td>
+    <td>${chip(j.status)}</td>
+    <td style="font-size:13px;color:${j.status==='overdue'?'var(--red)':'var(--label2)'}">${j.due}</td>
+  </tr>`;
+}
+
+function rowAll(j){
+  return `<tr style="cursor:pointer" onclick="openDetail('${j.id}')">
+    <td><span class="jid">${j.id}</span></td>
+    <td><div class="cname">${j.name}</div><div class="csub">${j.phone}</div></td>
+    <td><div class="cname">${j.device}</div><div class="csub">${j.serial}</div></td>
+    <td style="font-size:13px;color:var(--label2);max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${j.issue}</td>
+    <td>${j.branch}</td>
+    <td style="font-size:13px">${j.tech||'<span style="color:var(--label3)">Unassigned</span>'}</td>
+    <td>${chip(j.status)}</td>
+    <td style="font-size:13px;color:${j.status==='overdue'?'var(--red)':'var(--label2)'}">${j.due}</td>
+  </tr>`;
+}
+
+let curFilter='all';
+function render(){
+  document.getElementById('recentBody').innerHTML=JOBS.slice(0,6).map(rowRecent).join('');
+  renderJobs();
+}
+function renderJobs(){
+  const f=curFilter;
+  let jobs=f==='all'?JOBS:JOBS.filter(j=>j.status===f);
+  document.getElementById('allBody').innerHTML=jobs.length
+    ?jobs.map(rowAll).join('')
+    :`<tr><td colspan="8"><div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">No jobs</div><div class="empty-sub">Try a different filter</div></div></td></tr>`;
+  const open=JOBS.filter(j=>j.status!=='delivered').length;
+  document.getElementById('jobsSub').textContent=f==='all'?`${open} open jobs`:`${jobs.length} ${SM[f]?.l||f} jobs`;
+}
+
+function setFilter(f,btn){
+  curFilter=f;
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderJobs();
+}
+
+function filterNav(f){
+  navigate('jobs');
+  setTimeout(()=>{
+    curFilter=f;
+    document.querySelectorAll('.fb').forEach(b=>{
+      b.classList.toggle('active',b.textContent.trim().toLowerCase().includes(f));
+    });
+    renderJobs();
+  },30);
+}
+
+function navigate(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  const idx={dashboard:0,jobs:1,intake:2,reports:4};
+  const items=document.querySelectorAll('.nav-item');
+  if(idx[p]!==undefined) items[idx[p]].classList.add('active');
+  if(p==='jobs') renderJobs();
+}
+
+function openDetail(id){
+  const j=JOBS.find(x=>x.id===id);if(!j)return;
+  document.getElementById('pTitle').textContent=j.id;
+  document.getElementById('pChip').innerHTML=chip(j.status);
+
+  const tl=[
+    {dot:'var(--label3)',ev:'Job received at '+j.branch,meta:'Intake · '+j.date},
+    j.tech?{dot:'var(--purple)',ev:'Assigned to '+j.tech,meta:'Staff'}:null,
+    j.status==='parts'?{dot:'var(--orange)',ev:'Awaiting parts',meta:'Parts ordered'}:null,
+    ['service','ready','delivered'].includes(j.status)?{dot:'var(--blue)',ev:'Service in progress',meta:'Technician update'}:null,
+    j.status==='ready'?{dot:'var(--green)',ev:'Ready for pickup — customer notified',meta:'WhatsApp sent'}:null,
+    j.status==='overdue'?{dot:'var(--red)',ev:'Job overdue',meta:'Past due '+j.due}:null,
+  ].filter(Boolean);
+
+  const balance=j.amt&&j.paid<j.amt?` <span style="color:var(--orange);font-size:12px">(₹${(j.amt-j.paid).toLocaleString('en-IN')} due)</span>`:'';
+
+  document.getElementById('pBody').innerHTML=`
+    <div class="dr"><div class="dk">Customer</div><div class="dv">${j.name}</div></div>
+    <div class="dr"><div class="dk">Phone</div><div class="dv">${j.phone}</div></div>
+    <div class="dr"><div class="dk">Device</div><div class="dv">${j.device}</div></div>
+    <div class="dr"><div class="dk">Serial No.</div><div class="dv" style="font-family:var(--mono);font-size:13px">${j.serial}</div></div>
+    <div class="dr"><div class="dk">Issue</div><div class="dv">${j.issue}</div></div>
+    <div class="dr"><div class="dk">Category</div><div class="dv">${j.cat}</div></div>
+    <div class="dr"><div class="dk">Branch</div><div class="dv">${j.branch}</div></div>
+    <div class="dr"><div class="dk">Technician</div><div class="dv">${j.tech||'<span style="color:var(--label3)">Unassigned</span>'}</div></div>
+    <div class="dr"><div class="dk">Due Date</div><div class="dv" style="color:${j.status==='overdue'?'var(--red)':'inherit'}">${j.due}</div></div>
+    <div class="dr"><div class="dk">Estimate</div><div class="dv">${j.amt?'₹'+j.amt.toLocaleString('en-IN'):'<span style="color:var(--label3)">Pending</span>'}</div></div>
+    <div class="dr"><div class="dk">Paid</div><div class="dv">₹${j.paid.toLocaleString('en-IN')}${balance}</div></div>
+    ${j.notes?`<div class="dr"><div class="dk">Notes</div><div class="dv" style="color:var(--label2)">${j.notes}</div></div>`:''}
+    <div class="tl">
+      <div class="tl-title">Activity</div>
+      ${tl.map(t=>`<div class="tl-item"><div class="tl-dot" style="background:${t.dot}"></div><div><div class="tl-ev">${t.ev}</div><div class="tl-meta">${t.meta}</div></div></div>`).join('')}
+    </div>`;
+
+  const acts=[];
+  if(j.status==='received') acts.push(`<button class="ab ab-blue" onclick="upd('${j.id}','diagnosing')">Start Diagnosing</button>`);
+  if(j.status==='diagnosing') acts.push(
+    `<button class="ab ab-blue" onclick="upd('${j.id}','service')">Begin Service</button>`,
+    `<button class="ab ab-orange" onclick="upd('${j.id}','parts')">Awaiting Parts</button>`
+  );
+  if(j.status==='parts') acts.push(`<button class="ab ab-blue" onclick="upd('${j.id}','service')">Parts Arrived — Begin Service</button>`);
+  if(j.status==='service') acts.push(`<button class="ab ab-green" onclick="upd('${j.id}','ready')">Mark Ready for Pickup</button>`);
+  if(j.status==='ready') acts.push(`<button class="ab ab-green" onclick="upd('${j.id}','delivered')">Mark Delivered &amp; Close Job</button>`);
+  if(j.status==='overdue') acts.push(`<button class="ab ab-blue" onclick="upd('${j.id}','service')">Resume Service</button>`);
+  acts.push(`<button class="ab ab-muted" onclick="sendWA('${j.name}')">📱 WhatsApp</button>`);
+  document.getElementById('pActions').innerHTML=acts.join('');
+
+  document.getElementById('overlay').classList.add('show');
+}
+
+function upd(id,s){
+  const j=JOBS.find(x=>x.id===id);if(!j)return;
+  j.status=s;
+  closePanel();
+  render();
+  toast('Status → '+SM[s].l);
+}
+
+function sendWA(name){closePanel();toast('WhatsApp sent to '+name);}
+
+function closePanel(){document.getElementById('overlay').classList.remove('show');}
+function maybeClose(e){if(e.target===document.getElementById('overlay'))closePanel();}
+
+function submitIntake(){
+  const n=document.getElementById('f-name').value.trim();
+  const p=document.getElementById('f-phone').value.trim();
+  if(!n||!p){toast('⚠ Name and phone required');return;}
+  toast('✓ Job sheet created · WhatsApp sent to '+n);
+  setTimeout(()=>navigate('jobs'),700);
+}
+
+function switchBranch(v){toast('Viewing: '+(v==='all'?'All Branches':v));}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+render();
+</script>
+</body>
+</html>
