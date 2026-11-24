@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ServiceDesk — Build Completion Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:    #0f1f3d;
+  --navyDk:  #09162d;
+  --blue:    #1a56db;
+  --blueLt:  #eff6ff;
+  --teal:    #0694a2;
+  --tealLt:  #e0f7fa;
+  --amber:   #d97706;
+  --amberLt: #fffbeb;
+  --green:   #057a55;
+  --greenLt: #e8f5e9;
+  --red:     #c81e1e;
+  --redLt:   #fef2f2;
+  --purple:  #6d28d9;
+  --purpleLt:#f5f3ff;
+  --ink:     #111827;
+  --muted:   #6b7280;
+  --subtle:  #9ca3af;
+  --border:  #e5e7eb;
+  --sand:    #f9fafb;
+  --white:   #fff;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;background:var(--sand);color:var(--ink);font-size:14.5px;line-height:1.7;}
+code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--sand);padding:1px 5px;border-radius:4px;border:1px solid var(--border);}
+
+/* NAV */
+.topnav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(15,31,61,.97);backdrop-filter:blur(8px);
+  display:flex;align-items:center;padding:0 clamp(16px,4vw,60px);height:54px;gap:20px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+.nav-logo{font-size:14px;font-weight:700;color:#fff;margin-right:auto;white-space:nowrap;letter-spacing:-.2px;}
+.nav-logo span{color:#60a5fa;}
+.topnav a{font-size:12px;font-weight:500;color:rgba(255,255,255,.5);text-decoration:none;transition:color .12s;white-space:nowrap;}
+.topnav a:hover{color:#fff;}
+
+/* HERO */
+.hero{background:var(--navy);padding:72px clamp(16px,5vw,80px) 64px;position:relative;overflow:hidden;}
+.hero-deco{position:absolute;top:-120px;right:-120px;width:600px;height:600px;pointer-events:none;}
+.hero-inner{width:100%;position:relative;z-index:1;}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(26,86,219,.2);border:1px solid rgba(96,165,250,.25);
+  color:#93c5fd;border-radius:99px;
+  padding:4px 14px;font-size:11.5px;font-weight:600;letter-spacing:.5px;
+  text-transform:uppercase;margin-bottom:18px;
+}
+.hero h1{font-size:clamp(26px,4vw,44px);font-weight:800;color:#fff;letter-spacing:-1px;line-height:1.15;margin-bottom:14px;}
+.hero h1 em{color:#60a5fa;font-style:normal;}
+.hero-sub{font-size:clamp(14px,1.5vw,16px);color:rgba(255,255,255,.55);line-height:1.7;max-width:680px;margin-bottom:32px;}
+.hero-now{
+  display:flex;align-items:flex-start;gap:12px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;padding:16px 20px;max-width:720px;
+}
+.hero-now-icon{font-size:18px;margin-top:1px;}
+.hero-now-text{font-size:13.5px;color:rgba(255,255,255,.5);line-height:1.65;}
+.hero-now-text strong{color:rgba(255,255,255,.8);}
+
+/* PAGE */
+.page{width:100%;padding:0 clamp(16px,5vw,80px) 80px;}
+
+/* SECTION */
+.section{padding-top:60px;}
+.sec-eyebrow{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--blue);margin-bottom:7px;}
+.section h2{font-size:clamp(20px,2.5vw,26px);font-weight:800;color:var(--navy);letter-spacing:-.4px;line-height:1.2;margin-bottom:8px;}
+.section .lead{font-size:15px;color:var(--muted);line-height:1.75;margin-bottom:32px;}
+.divider{height:1px;background:var(--border);margin:56px 0 0;}
+
+/* CALLOUT */
+.callout{border-radius:12px;padding:14px 18px;font-size:13.5px;display:flex;gap:10px;line-height:1.65;margin:12px 0;}
+.callout-blue{background:var(--blueLt);color:#1e40af;border:1px solid #bfdbfe;}
+.callout-red{background:var(--redLt);color:#991b1b;border:1px solid #fecaca;}
+.callout-ico{font-size:15px;flex-shrink:0;margin-top:1px;}
+
+/* PHASE CARDS */
+.phases{display:flex;flex-direction:column;gap:0;}
+.phase-card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:16px;padding:28px 30px;margin-bottom:20px;
+  border-left:5px solid var(--border);
+  position:relative;
+}
+.phase-card.p1{border-left-color:var(--blue);}
+.phase-card.p2{border-left-color:var(--teal);}
+.phase-card.p3{border-left-color:var(--green);}
+.phase-card.p4{border-left-color:var(--amber);}
+.phase-card.p5{border-left-color:var(--purple);}
+.phase-card.p6{border-left-color:var(--navy);}
+
+.phase-header{display:flex;align-items:flex-start;gap:16px;margin-bottom:16px;flex-wrap:wrap;}
+.phase-num{
+  width:44px;height:44px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:800;color:#fff;flex-shrink:0;
+}
+.p1 .phase-num{background:var(--blue);}
+.p2 .phase-num{background:var(--teal);}
+.p3 .phase-num{background:var(--green);}
+.p4 .phase-num{background:var(--amber);}
+.p5 .phase-num{background:var(--purple);}
+.p6 .phase-num{background:var(--navy);}
+
+.phase-meta{flex:1;}
+.phase-title-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px;}
+.phase-title{font-size:18px;font-weight:800;color:var(--navy);letter-spacing:-.3px;}
+.phase-time{
+  font-size:11.5px;font-weight:600;color:var(--muted);
+  background:var(--sand);padding:3px 10px;border-radius:99px;
+  border:1px solid var(--border);
+}
+.phase-critical{
+  font-size:11px;font-weight:700;color:var(--red);
+  background:var(--redLt);padding:3px 10px;border-radius:99px;
+  border:1px solid #fecaca;text-transform:uppercase;letter-spacing:.4px;
+}
+.phase-desc{font-size:13.5px;color:var(--muted);line-height:1.7;}
+
+/* DELIVERABLES */
+.deliverables{display:flex;flex-direction:column;gap:16px;margin-top:20px;}
+.deliv{background:var(--sand);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.deliv-head{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 16px;border-bottom:1px solid var(--border);
+  background:var(--white);
+}
+.deliv-letter{
+  width:26px;height:26px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:800;color:#fff;flex-shrink:0;
+}
+.p1 .deliv-letter{background:var(--blue);}
+.p2 .deliv-letter{background:var(--teal);}
+.p3 .deliv-letter{background:var(--green);}
+.p4 .deliv-letter{background:var(--amber);}
+.p5 .deliv-letter{background:var(--purple);}
+.p6 .deliv-letter{background:var(--navy);}
+
+.deliv-title{font-size:13.5px;font-weight:700;color:var(--navy);}
+.deliv-body{padding:14px 16px;}
+.deliv-body ul{list-style:none;display:flex;flex-direction:column;gap:7px;}
+.deliv-body li{font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:flex-start;line-height:1.6;}
+.deliv-body li::before{content:'·';color:var(--blue);font-weight:900;flex-shrink:0;margin-top:1px;}
+.p2 .deliv-body li::before{color:var(--teal);}
+.p3 .deliv-body li::before{color:var(--green);}
+.p4 .deliv-body li::before{color:var(--amber);}
+.p5 .deliv-body li::before{color:var(--purple);}
+.p6 .deliv-body li::before{color:var(--navy);}
+
+/* SUMMARY TABLE */
+.sum-table{width:100%;border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:4px;}
+.sum-row{display:grid;grid-template-columns:40px 1fr 2fr 2fr 160px;border-bottom:1px solid var(--border);}
+.sum-row:last-child{border-bottom:none;}
+.sum-row.head{background:var(--navy);}
+.sum-row.head > div{padding:10px 16px;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:rgba(255,255,255,.5);}
+.sum-row:not(.head) > div{padding:14px 16px;font-size:13px;line-height:1.5;border-right:1px solid var(--border);}
+.sum-row:not(.head) > div:last-child{border-right:none;}
+.sum-row:not(.head):nth-child(even){background:var(--white);}
+.sum-row:not(.head):nth-child(odd){background:var(--sand);}
+.sum-ph{font-weight:700;font-size:14px;}
+.sum-ph.p1{color:var(--blue);}
+.sum-ph.p2{color:var(--teal);}
+.sum-ph.p3{color:var(--green);}
+.sum-ph.p4{color:var(--amber);}
+.sum-ph.p5{color:var(--purple);}
+.sum-ph.p6{color:var(--navy);}
+
+.effort{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:11.5px;font-weight:700;}
+.effort-high{background:var(--redLt);color:var(--red);border:1px solid #fecaca;}
+.effort-med{background:var(--amberLt);color:var(--amber);border:1px solid #fde68a;}
+.effort-low{background:var(--greenLt);color:var(--green);border:1px solid #bbf7d0;}
+
+.total-bar{
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  background:var(--navy);color:#fff;border-radius:14px;padding:20px 24px;margin-top:20px;
+}
+.total-label{font-size:13px;color:rgba(255,255,255,.6);margin-bottom:4px;}
+.total-value{font-size:22px;font-weight:800;letter-spacing:-.5px;}
+.total-value em{color:#60a5fa;font-style:normal;}
+.total-group{flex:1;min-width:160px;}
+
+footer{
+  text-align:center;font-size:12px;color:var(--subtle);
+  padding:28px clamp(16px,5vw,80px) 36px;border-top:1px solid var(--border);
+}
+
+@media(max-width:700px){
+  .phase-header{flex-direction:column;gap:10px;}
+  .sum-row{grid-template-columns:1fr 1fr;}
+  .sum-row.head{display:none;}
+  .sum-row:not(.head){display:flex;flex-wrap:wrap;gap:4px;padding:12px 14px;}
+  .sum-row:not(.head) > div{border-right:none;padding:4px 0;}
+  .sum-ph{font-size:15px;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="topnav">
+  <div class="nav-logo">ServiceDesk <span>Build Plan</span></div>
+  <a href="#phase1">P1 · Inspection</a>
+  <a href="#phase2">P2 · Jobs</a>
+  <a href="#phase3">P3 · Portal</a>
+  <a href="#phase4">P4 · Reports</a>
+  <a href="#phase5">P5 · Settings</a>
+  <a href="#phase6">P6 · Push &amp; WA</a>
+  <a href="#summary">Summary</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <svg class="hero-deco" viewBox="0 0 600 600" fill="none">
+    <circle cx="600" cy="0" r="520" stroke="#60a5fa" stroke-width="1" opacity=".06"/>
+    <circle cx="600" cy="0" r="360" stroke="#60a5fa" stroke-width="1.5" opacity=".06"/>
+    <circle cx="600" cy="0" r="200" stroke="#fff" stroke-width=".5" opacity=".03"/>
+  </svg>
+  <div class="hero-inner">
+    <div class="hero-badge">Internal Roadmap · August 2026</div>
+    <h1>ServiceDesk<br><em>Build Completion Plan</em></h1>
+    <p class="hero-sub">Phased implementation roadmap for all missing features — from critical inspection gates to branch reporting, customer portal, and push notifications.</p>
+    <div class="hero-now">
+      <div class="hero-now-icon">⚠️</div>
+      <div class="hero-now-text">
+        <strong>Covers 6 phases over ~8 weeks.</strong> Phase 1 (Inspection &amp; Estimation) is the critical path — without it the core job lifecycle is incomplete: staff can currently move jobs to In Service without any customer approval. All subsequent phases layer on reporting, portal interactivity, branch configuration, and external integrations.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- ── PHASE 1 ──────────────────────────────────────────────── -->
+  <div class="section" id="phase1">
+    <div class="sec-eyebrow">Phase 1 · Critical Path</div>
+    <h2>Inspection &amp; Estimation</h2>
+    <p class="lead">The estimate → approval → work gate is entirely missing. Staff can currently transition any job to "In Service" without the customer ever seeing or approving an estimate. This phase closes that gap and builds the full inspection evidence chain.</p>
+
+    <div class="phases">
+      <div class="phase-card p1">
+        <div class="phase-header">
+          <div class="phase-num">1</div>
+          <div class="phase-meta">
+            <div class="phase-title-row">
+              <div class="phase-title">Inspection &amp; Estimation</div>
+              <div class="phase-time">Week 1–2</div>
+              <div class="phase-critical">Critical Path</div>
+            </div>
+            <div class="phase-desc">Photo evidence, structured estimate sending, customer approval tracking, hard gate before work begins, and portal-side approve/decline.</div>
+          </div>
+        </div>
+
+        <div class="deliverables">
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">A</div>
+              <div class="deliv-title">DB Migration</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>Create <code>job_photos</code> table — columns: <code>id</code>, <code>job_id</code>, <code>org_id</code>, <code>photo_type</code> (enum: <code>inspection</code> | <code>post_service</code>), <code>storage_path</code>, <code>caption</code>, <code>uploaded_by</code>, <code>created_at</code></li>
+                <li>Add <code>customer_approval</code> fields to <code>jobs</code>: <code>approval_status</code> enum (<code>pending</code> | <code>approved</code> | <code>declined</code>), <code>approved_by_channel</code> enum (<code>staff</code> | <code>portal</code> | <code>whatsapp</code>), <code>approved_at</code> timestamp, <code>approved_by_user</code> UUID nullable, <code>decline_reason</code> text nullable</li>
+                <li>Create Supabase Storage bucket <code>job-photos</code> — private, signed URL access, RLS policy: users can only read photos from their own org</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">B</div>
+              <div class="deliv-title">Photo Upload — Inspection</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>Add "Inspection Photos" card on job detail page — visible to technician, admin, and manager roles when job is in <code>inspection</code> or later status</li>
+                <li>Upload button with file picker (<code>accept="image/*"</code>) — supports multiple selection; shows a thumbnail preview grid immediately after selection before upload</li>
+                <li>Storage path pattern: <code>{org_id}/{job_id}/inspection/{uuid}.{ext}</code></li>
+                <li>After upload, photos displayed in a 3-column grid with an optional caption field per photo; captions stored in the <code>job_photos</code> table</li>
+                <li>Use Supabase Storage <code>createSignedUrl</code> (24h TTL) for display — never expose raw storage paths</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">C</div>
+              <div class="deliv-title">Photo Upload — Post-Service</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>Same component pattern as inspection photos but <code>photo_type = 'post_service'</code></li>
+                <li>Shown in a separate "Post-Service Photos" card on job detail — only editable when job status is <code>in_service</code> or <code>ready</code></li>
+                <li>Storage path: <code>{org_id}/{job_id}/post_service/{uuid}.{ext}</code></li>
+                <li>Read-only (display only) once job reaches <code>delivered</code></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">D</div>
+              <div class="deliv-title">Send Estimate Action</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>Add an explicit <strong>"Send Estimate to Customer"</strong> primary action button on the job detail page — shown only when: (1) job status is <code>inspection</code>, and (2) at least one part or labour line has been added</li>
+                <li>On click: transitions job to <code>estimate_sent</code>, sets <code>approval_status = 'pending'</code>, fires a <em>rich</em> notification (not the generic template)</li>
+                <li>Rich message format: <em>"Inspection complete for Job #JS-001. Estimate: Screen replacement (1 × ₹1,800) + Labour (₹400) = Total ₹2,200. Approve or view details: [tracking link]"</em></li>
+                <li>This button replaces the generic "→ Estimate Sent" status transition for this specific step — the generic transition button is hidden when rich send is available</li>
+                <li>Tracking portal link (<code>/track/{portal_token}</code>) is included in the message body</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">E</div>
+              <div class="deliv-title">Customer Approval Tracking — Staff Side</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>New "Customer Approval" card on job detail — visible once status reaches <code>estimate_sent</code></li>
+                <li>Shows current approval status with a coloured badge: Pending (amber), Approved (green), Declined (red) — plus the timestamp and channel when set</li>
+                <li>Staff action buttons: <strong>"Mark as Approved"</strong> and <strong>"Mark as Declined"</strong></li>
+                <li>Declined flow: reveal a text field for decline reason → on confirm, approval_status = 'declined', job transitions back to <code>inspection</code> so technician can revise the estimate</li>
+                <li>Approved flow: sets <code>approval_status = 'approved'</code>, <code>approved_by_channel = 'staff'</code>, records the staff user ID and timestamp — the "→ In Service" button becomes active</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">F</div>
+              <div class="deliv-title">Hard Gate — In Service Transition</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>Modify the <code>transition_job_status</code> Supabase RPC: if <code>p_new_status = 'in_service'</code>, check <code>approval_status = 'approved'</code> — throw a descriptive error if not</li>
+                <li>On the job detail UI, disable the "→ In Service" transition button when approval is not yet recorded; show a tooltip on hover: <em>"Customer approval required before work can begin"</em></li>
+                <li>The disabled state is visually distinct — greyed out with a lock icon — not just opacity</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">G</div>
+              <div class="deliv-title">Customer Portal — Approve / Decline</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>On <code>/track/[token]</code>, when job status = <code>estimate_sent</code>: show the full estimate breakdown (already rendered) plus two new action buttons — <strong>"Approve Repair"</strong> (green) and <strong>"Decline"</strong> (red/outline)</li>
+                <li>Approve: calls a new Supabase RPC <code>approve_estimate_via_portal(p_token, p_decision, p_decline_reason)</code> — validates the token, sets approval fields, sends a staff notification that the customer approved</li>
+                <li>Decline: shows an inline text input for reason → on confirm, submits with <code>p_decision = 'declined'</code> and the reason text</li>
+                <li>After either action: portal transitions to a confirmation screen — Approved shows a green confirmation + next steps; Declined shows an acknowledgement that the service center will be in touch</li>
+                <li>Buttons are hidden once a decision is recorded (idempotent)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">H</div>
+              <div class="deliv-title">Estimate Notification with Line-Item Breakdown</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>The "Send Estimate" action (D above) builds the message dynamically from the actual <code>job_parts</code> rows — not from the generic notification template</li>
+                <li>Format: each part as <code>Item name (qty × ₹unit) = ₹line_total</code>, then a separator line, then <code>Total: ₹X</code></li>
+                <li>Portal tracking link is appended: <code>Track &amp; approve: https://…/track/{token}</code></li>
+                <li>Message is passed directly to the <code>send-notification</code> edge function via a <code>custom_message</code> override parameter (add this param to the edge function) — bypasses the template system for this specific trigger</li>
+                <li>Notification log records the rich message body as normal</li>
+              </ul>
+            </div>
+          </div>
+
+        </div><!-- /deliverables -->
+      </div><!-- /phase-card -->
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── PHASE 2 ──────────────────────────────────────────────── -->
+  <div class="section" id="phase2">
+    <div class="sec-eyebrow">Phase 2 · Week 3</div>
+    <h2>Job Management Completeness</h2>
+    <p class="lead">Fills in the missing operational pieces that front desk, technicians, and managers use every day — overdue visibility, smarter filters, structured notes, and the technician workload view.</p>
+
+    <div class="phases">
+      <div class="phase-card p2">
+        <div class="phase-header">
+          <div class="phase-num">2</div>
+          <div class="phase-meta">
+            <div class="phase-title-row">
+              <div class="phase-title">Job Management Completeness</div>
+              <div class="phase-time">Week 3</div>
+            </div>
+            <div class="phase-desc">Overdue flags, technician filtering, diagnosis notes, parts expected date, workload view, and outstanding balance warnings at intake.</div>
+          </div>
+        </div>
+
+        <div class="deliverables">
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">A</div>
+              <div class="deliv-title">Overdue Flag on Job List</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>On the jobs list page, any job where <code>estimated_delivery &lt; today</code> AND status is not <code>delivered</code> gets a red "Overdue" badge rendered next to its status badge</li>
+                <li>Add an "Overdue" quick-filter chip at the top of the jobs list alongside existing status filters — clicking it filters to all overdue open jobs across all statuses</li>
+                <li>Dashboard "Overdue" stat card (already exists) becomes a link that navigates to <code>/jobs?filter=overdue</code></li>
+                <li>Overdue logic: for jobs in <code>parts</code> status, compare against <code>parts_expected_date</code> (Phase 2D below) rather than <code>estimated_delivery</code></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">B</div>
+              <div class="deliv-title">Technician Filter on Job List</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>Add a "Technician" dropdown filter on the jobs list page — populated from users with roles <code>technician</code> and <code>manager</code> in the active branch</li>
+                <li>Selecting a technician adds <code>assigned_tech_id</code> to the Supabase query filter</li>
+                <li>"Unassigned" option to filter for jobs with no technician assigned — a common management view</li>
+                <li>Filter persists in the URL as a query param so it can be bookmarked or shared</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">C</div>
+              <div class="deliv-title">Customer Name Search on Job List</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>Extend the current search box to match against both <code>job_number</code> and <code>customers.full_name</code> — currently only <code>job_number</code> is searched</li>
+                <li>Implementation: use a Supabase <code>.or()</code> filter with an inner join on the customers relation, or use a <code>search_term</code> computed column via a DB view</li>
+                <li>Also match against <code>customers.phone</code> — staff often search by phone at the counter</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">D</div>
+              <div class="deliv-title">Awaiting Parts — Expected Arrival Date</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>Add column <code>parts_expected_date</code> (date, nullable) to the <code>jobs</code> table</li>
+                <li>When transitioning to <code>parts</code> status, the transition modal shows an additional date picker field: "Expected parts arrival date" (required for this specific transition)</li>
+                <li>On the job detail header area, when status = <code>parts</code>, show: <em>"Parts expected: [date]"</em> in amber — or <em>"Parts overdue"</em> in red if the date has passed</li>
+                <li>Overdue report (Phase 4A) uses this date instead of <code>estimated_delivery</code> when status is <code>parts</code></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">E</div>
+              <div class="deliv-title">Diagnosis Notes &amp; Resolution Summary</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>Add two columns to <code>jobs</code>: <code>diagnosis_notes</code> text nullable, <code>resolution_summary</code> text nullable</li>
+                <li>On job detail, add a "Diagnosis" textarea — editable by technician/admin/manager when status is <code>inspection</code> or later; auto-saves on blur</li>
+                <li>Add "Resolution Summary" textarea — editable only when status is <code>in_service</code>, <code>ready</code>, or <code>delivered</code></li>
+                <li>Both fields are visible to staff at all times; shown in the customer portal under a "Technician's Findings" section (only diagnosis when status ≥ <code>estimate_sent</code>; resolution when status ≥ <code>ready</code>)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">F</div>
+              <div class="deliv-title">Technician Workload View</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>New page at <code>/technicians</code> — accessible to admin and manager roles; linked from the sidebar under a "Team" section</li>
+                <li>Each technician shown as a card: avatar/initial, name, role, and a mini status breakdown — # jobs In Service, # Awaiting Parts, # total open</li>
+                <li>Cards sortable by open job count (most loaded first)</li>
+                <li>Clicking a technician card navigates to <code>/jobs?tech={id}</code> — the jobs list filtered to that person</li>
+                <li>Data is a single Supabase query grouping jobs by <code>assigned_tech_id</code> and <code>status</code></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">G</div>
+              <div class="deliv-title">Outstanding Balance Warning at Intake</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>On the new job form (Step 1 — Customer), when a repeat customer is detected by phone number, query their invoice history for any <code>outstanding_balance &gt; 0</code></li>
+                <li>If found, show a prominent amber warning banner below the customer match indicator: <em>"⚠ This customer has an outstanding balance of ₹2,200 from Job #JS-2026-08-00098. Please collect before proceeding."</em></li>
+                <li>Warning is informational only — it does not block job creation (a manager may override) but is visually prominent so front desk cannot miss it</li>
+                <li>Show the job number as a link so staff can open the old job to collect payment in another tab</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── PHASE 3 ──────────────────────────────────────────────── -->
+  <div class="section" id="phase3">
+    <div class="sec-eyebrow">Phase 3 · Week 4</div>
+    <h2>Customer Portal Enhancements</h2>
+    <p class="lead">The portal is currently read-only beyond status tracking. This phase makes it interactive and complete — photos, invoice downloads, device history, and warranty tracking.</p>
+
+    <div class="phases">
+      <div class="phase-card p3">
+        <div class="phase-header">
+          <div class="phase-num">3</div>
+          <div class="phase-meta">
+            <div class="phase-title-row">
+              <div class="phase-title">Customer Portal Enhancements</div>
+              <div class="phase-time">Week 4</div>
+            </div>
+            <div class="phase-desc">Photos in portal, invoice PDF download, device job history, and warranty period tracking — making the self-service portal genuinely useful to customers.</div>
+          </div>
+        </div>
+
+        <div class="deliverables">
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">A</div>
+              <div class="deliv-title">Inspection &amp; Post-Service Photos in Portal</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>Fetch <code>job_photos</code> rows via the <code>get_job_by_portal_token</code> RPC (extend it to include photos)</li>
+                <li>Inspection photos visible after status reaches <code>estimate_sent</code> — shows customer what the technician found</li>
+                <li>Post-service photos visible after status reaches <code>ready</code> — shows what was fixed</li>
+                <li>Display as a horizontal scrollable photo strip with tap-to-enlarge (lightbox overlay, no library needed — native <code>&lt;dialog&gt;</code>)</li>
+                <li>URLs are generated server-side as short-lived signed URLs (via edge function) so they never expire while the customer is viewing — refresh on token expiry</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">B</div>
+              <div class="deliv-title">Invoice Download from Portal</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>When status is <code>ready</code> or <code>delivered</code>, show a "Download Invoice" button on the portal (only when an invoice record exists)</li>
+                <li>Implementation: Next.js API route <code>GET /api/invoice/[token].pdf</code> — validates the portal token, fetches the invoice + line items, generates a PDF and returns it with the correct content-type header</li>
+                <li>PDF generation: use a lightweight library (jsPDF or pdf-lib) server-side — no browser print dependency</li>
+                <li>Invoice PDF contents: org name, branch address &amp; phone, customer name, job number, date, line-item table (description / qty / unit / total), grand total, payment mode &amp; status, a "Thank you" footer with warranty reminder</li>
+                <li>Also accessible from the staff-side job detail — "Print Invoice" button using the same endpoint</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">C</div>
+              <div class="deliv-title">Device History in Portal</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>Below the current job, show a "Past Jobs for This Device" section — all previous jobs for the same <code>asset.primary_identifier</code></li>
+                <li>Fetched as part of the portal RPC — join <code>assets</code> → <code>jobs</code> filtered by same <code>primary_identifier</code> and not the current job</li>
+                <li>Read-only display: date, job number, status badge, issue category — no links (customer portal is stateless per token)</li>
+                <li>Hidden if no past jobs exist for the device</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">D</div>
+              <div class="deliv-title">Warranty Period Tracking</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>Add column <code>warranty_expires_at</code> (timestamptz, nullable) to the <code>jobs</code> table</li>
+                <li>When a job transitions to <code>delivered</code>, automatically set <code>warranty_expires_at = delivered_at + warranty_days</code> — warranty days configurable per org in settings (default 30 days)</li>
+                <li>Customer portal: when status = <code>delivered</code> and within warranty window, show a green banner: <em>"Warranty valid until [date]. Quote Job #JS-XXXX for any warranty service."</em> — after expiry, show grey: <em>"Warranty expired [date]."</em></li>
+                <li>Staff-side job detail: show warranty status in the header area once delivered; admin/manager can manually edit the expiry date</li>
+                <li>Add warranty days setting to org settings page (<code>/settings/org</code>)</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── PHASE 4 ──────────────────────────────────────────────── -->
+  <div class="section" id="phase4">
+    <div class="sec-eyebrow">Phase 4 · Week 5</div>
+    <h2>Reports Expansion</h2>
+    <p class="lead">Head office currently has no cross-branch visibility. The existing reports page is single-branch and missing overdue aging, margin breakdown, and export. This phase delivers everything needed for the head office dashboard.</p>
+
+    <div class="phases">
+      <div class="phase-card p4">
+        <div class="phase-header">
+          <div class="phase-num">4</div>
+          <div class="phase-meta">
+            <div class="phase-title-row">
+              <div class="phase-title">Reports Expansion</div>
+              <div class="phase-time">Week 5</div>
+            </div>
+            <div class="phase-desc">Overdue aging report, cross-branch revenue, parts cost vs margin, customer return rate, branch comparison table, and one-click CSV/PDF export.</div>
+          </div>
+        </div>
+
+        <div class="deliverables">
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">A</div>
+              <div class="deliv-title">Overdue Jobs Report</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>Dedicated "Overdue" tab in the reports page — list of all jobs past their expected date, sorted by aging (most overdue at the top)</li>
+                <li>Columns: Job #, Customer, Branch, Technician, Status, Expected Date, <strong>Days Overdue</strong></li>
+                <li>Days Overdue is a computed column: <code>today - expected_date</code> — shown with a red badge for &gt;3 days, amber for 1–3 days</li>
+                <li>Filterable by branch (admin sees all 7 branches; manager sees own branch only)</li>
+                <li>Parts-status jobs use <code>parts_expected_date</code>; all others use <code>estimated_delivery</code></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">B</div>
+              <div class="deliv-title">Revenue by Branch (Cross-Branch)</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>New "Branch Revenue" section in reports — admin-only (hidden for manager role)</li>
+                <li>Horizontal bar chart — one bar per branch, length proportional to revenue in the selected date range</li>
+                <li>Table below the chart with columns: Branch, # Jobs Completed, Revenue (₹), Avg Job Value (₹), # Currently Overdue</li>
+                <li>Sortable by any column; totals row at the bottom</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">C</div>
+              <div class="deliv-title">Parts Cost vs Revenue (Margin)</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>The <code>job_parts</code> table already tracks unit cost per part — aggregate it by branch and period</li>
+                <li>Show: Revenue, Parts Cost, Labour Cost, Gross Margin (₹ and %) — per branch and overall</li>
+                <li>Simple table layout — no chart needed; margin % highlighted in green if &gt;50%, amber if 30–50%, red if &lt;30%</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">D</div>
+              <div class="deliv-title">Customer Return Rate</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>Metric: (customers with 2+ jobs) ÷ (total customers with at least 1 job) × 100 = return rate %</li>
+                <li>Show as a headline stat card, plus per-branch breakdown</li>
+                <li>Table: Top 10 most frequent customers — name, phone, # jobs, total revenue from them</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">E</div>
+              <div class="deliv-title">Branch Comparison Table</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>Admin-only view — side-by-side table with all branches as columns and metrics as rows</li>
+                <li>Metrics: Open Jobs, Completed (period), Revenue (period), Avg Turnaround Days, # Overdue, Technician Count</li>
+                <li>Cells with the best value in a row get a subtle green highlight; worst value gets a subtle red highlight</li>
+                <li>Scrollable horizontally on mobile</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">F</div>
+              <div class="deliv-title">Export to CSV / PDF</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>CSV export: "Export CSV" button on every report table — builds the CSV string client-side from the already-fetched data, triggers a download via <code>URL.createObjectURL(Blob)</code>. No server call needed.</li>
+                <li>PDF export: "Print / PDF" button triggers <code>window.print()</code> — add a <code>@media print</code> stylesheet that hides the topnav, sidebar, filter controls, and export buttons, leaving only the data tables formatted cleanly</li>
+                <li>CSV filename convention: <code>servicedesk-{report_name}-{date}.csv</code></li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── PHASE 5 ──────────────────────────────────────────────── -->
+  <div class="section" id="phase5">
+    <div class="sec-eyebrow">Phase 5 · Week 6</div>
+    <h2>Branch &amp; Settings Completeness</h2>
+    <p class="lead">Operational configuration that branch managers and head office need. Most of this is UI wiring — the DB columns already exist or are small additions.</p>
+
+    <div class="phases">
+      <div class="phase-card p5">
+        <div class="phase-header">
+          <div class="phase-num">5</div>
+          <div class="phase-meta">
+            <div class="phase-title-row">
+              <div class="phase-title">Branch &amp; Settings Completeness</div>
+              <div class="phase-time">Week 6</div>
+            </div>
+            <div class="phase-desc">Working hours, holiday schedule, job sheet prefix configuration, and the estimate breakdown notification toggle.</div>
+          </div>
+        </div>
+
+        <div class="deliverables">
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">A</div>
+              <div class="deliv-title">Working Hours per Branch</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>Add column <code>working_hours</code> JSONB to the <code>branches</code> table — stores an object keyed by day (<code>mon</code>–<code>sun</code>), each with <code>open</code> (bool), <code>from</code> (HH:MM), <code>to</code> (HH:MM)</li>
+                <li>On the branch settings page (<code>/settings/branches</code>), add a working hours configurator — 7 rows (Mon–Sun), each row has: toggle (open/closed), and if open: time-from and time-to selectors</li>
+                <li>Save to the <code>branches</code> table on confirm; display the current schedule as a read-only grid when not editing</li>
+                <li>Phase 1 scope: display only. Future: use in overdue calculations to exclude non-working hours</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">B</div>
+              <div class="deliv-title">Holiday Schedule per Branch</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>Add column <code>holidays</code> JSONB array to <code>branches</code> — each item: <code>{ date: "YYYY-MM-DD", name: "Republic Day" }</code></li>
+                <li>On the branch settings page, add a "Holidays" section — shows a list of existing holidays with a delete button each, plus an "Add Holiday" form (date picker + name input)</li>
+                <li>Pre-populate with common Indian national holidays for the current year as a one-click import option</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">C</div>
+              <div class="deliv-title">Branch-Specific Job Sheet Prefix</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>The <code>job_prefix</code> column already exists on the <code>branches</code> table — wire it to the branch settings UI</li>
+                <li>Show a text input on each branch's settings card: "Job Sheet Prefix" — e.g. <code>KTH</code> for Kothrud, <code>PMP</code> for Pimpri</li>
+                <li>Show a live preview below the input: <em>KTH-2026-08-00001</em></li>
+                <li>Verify the DB trigger that generates <code>job_number</code> uses <code>branches.job_prefix</code>; fix if it falls back to a hardcoded string</li>
+                <li>Warn if prefix is changed after jobs already exist: "Changing this prefix will not rename existing job numbers — only future jobs will use the new prefix."</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">D</div>
+              <div class="deliv-title">Notification Settings — Estimate Breakdown Toggle</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>In the notification settings page, add a toggle under the <code>estimate_sent</code> trigger row: "Include full line-item breakdown in estimate message" (on by default)</li>
+                <li>When ON: the "Send Estimate" action (Phase 1D) sends the rich per-item message</li>
+                <li>When OFF: falls back to the generic <code>estimate_sent</code> template — useful for orgs where message length is a concern (e.g. SMS character limits)</li>
+                <li>Store as <code>notification_triggers.estimate_sent.rich_breakdown</code> boolean in <code>org_settings</code></li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── PHASE 6 ──────────────────────────────────────────────── -->
+  <div class="section" id="phase6">
+    <div class="sec-eyebrow">Phase 6 · Week 7–8</div>
+    <h2>Push Notifications &amp; WhatsApp Webhook</h2>
+    <p class="lead">The hardest phase — external integrations that require infrastructure setup beyond the app itself. Each deliverable is independently deployable.</p>
+
+    <div class="phases">
+      <div class="phase-card p6">
+        <div class="phase-header">
+          <div class="phase-num">6</div>
+          <div class="phase-meta">
+            <div class="phase-title-row">
+              <div class="phase-title">Push Notifications &amp; WhatsApp Webhook</div>
+              <div class="phase-time">Week 7–8</div>
+            </div>
+            <div class="phase-desc">Browser push for technicians, WhatsApp reply parsing for customer approval, and automated time-in-service tracking.</div>
+          </div>
+        </div>
+
+        <div class="deliverables">
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">A</div>
+              <div class="deliv-title">Push Notifications for Technicians</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>Implement Web Push (PWA) for technician role — service worker is already registered (<code>components/pwa/service-worker-register.tsx</code>)</li>
+                <li>Generate VAPID key pair one-time — store <code>VAPID_PUBLIC_KEY</code> and <code>VAPID_PRIVATE_KEY</code> in environment variables</li>
+                <li>Add a <code>push_subscriptions</code> table: <code>user_id</code>, <code>endpoint</code>, <code>p256dh</code>, <code>auth</code>, <code>created_at</code> — one row per browser/device per user</li>
+                <li>On technician login: prompt for push permission and POST the subscription object to <code>/api/push/subscribe</code></li>
+                <li>Trigger: new job assignment (<code>assigned_tech_id</code> set or changed) → Supabase DB webhook fires → <code>send-push-notification</code> edge function → finds the technician's subscriptions → sends Web Push to each</li>
+                <li>Push payload: job number, customer name, issue category — tapping the notification opens <code>/jobs/{id}</code></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">B</div>
+              <div class="deliv-title">WhatsApp Reply Webhook — Estimate Approval</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>Customer replies "YES", "APPROVE", "OK", or "HA" (Hindi affirmative) to the estimate WhatsApp message → auto-approves the estimate without any staff action</li>
+                <li>Webhook endpoint: <code>POST /api/wa-webhook</code> — validates the Twilio or 2Factor signature, parses the incoming message body and sender phone number</li>
+                <li>Lookup logic: find the most recent job for this phone number that has <code>approval_status = 'pending'</code> and status = <code>estimate_sent</code></li>
+                <li>On match: call <code>approve_estimate_via_portal</code> RPC with <code>approved_by_channel = 'whatsapp'</code> — sends a confirmation WhatsApp back to the customer: <em>"Your approval has been received for Job #JS-001. We'll start work shortly."</em></li>
+                <li>Decline keywords: "NO", "CANCEL", "DECLINE" → sets <code>approval_status = 'declined'</code> and transitions job back to <code>inspection</code></li>
+                <li>Staff-side: when approval came via WhatsApp, the Approval card shows a "WhatsApp Reply" channel badge</li>
+                <li>Twilio setup: set the webhook URL in the Twilio console for the WhatsApp sender number; for 2Factor, configure the reply webhook in their dashboard</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="deliv">
+            <div class="deliv-head">
+              <div class="deliv-letter">C</div>
+              <div class="deliv-title">Estimated vs Actual Time Tracking</div>
+            </div>
+            <div class="deliv-body">
+              <ul>
+                <li>Add two columns to <code>jobs</code>: <code>work_started_at</code> (timestamptz), <code>work_completed_at</code> (timestamptz)</li>
+                <li>Set automatically in the <code>transition_job_status</code> RPC: <code>work_started_at</code> on transition to <code>in_service</code>; <code>work_completed_at</code> on transition to <code>ready</code></li>
+                <li>Computed field: <code>actual_hours = EXTRACT(EPOCH FROM (work_completed_at - work_started_at)) / 3600</code></li>
+                <li>Job detail page header: show "Time in service: 4h 23m" once both timestamps are set</li>
+                <li>Technician report (Phase 4): add "Avg Time in Service (hrs)" column per technician — roll up from all their completed jobs in the period</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── SUMMARY ──────────────────────────────────────────────── -->
+  <div class="section" id="summary">
+    <div class="sec-eyebrow">Summary</div>
+    <h2>Full build at a glance</h2>
+    <p class="lead">Six phases, eight weeks, ordered by impact. Phase 1 unblocks everything else — it should start immediately.</p>
+
+    <div class="sum-table">
+      <div class="sum-row head">
+        <div>#</div>
+        <div>Phase</div>
+        <div>What's built</div>
+        <div>Deliverables</div>
+        <div>Effort</div>
+      </div>
+      <div class="sum-row">
+        <div class="sum-ph p1">1</div>
+        <div style="font-weight:700;color:var(--navy);">Inspection &amp; Estimation</div>
+        <div style="color:var(--muted);font-size:13px;">Photo uploads (inspection + post-service), Send Estimate action, approval tracking, hard gate on In Service, portal approve/decline, rich estimate notification</div>
+        <div style="color:var(--muted);font-size:13px;">8 deliverables (A–H) · DB migration required</div>
+        <div><span class="effort effort-high">HIGH · 2 weeks</span></div>
+      </div>
+      <div class="sum-row">
+        <div class="sum-ph p2">2</div>
+        <div style="font-weight:700;color:var(--navy);">Job Management</div>
+        <div style="color:var(--muted);font-size:13px;">Overdue flags + filters, technician filter, customer search, parts expected date, diagnosis notes, technician workload view, outstanding balance warning</div>
+        <div style="color:var(--muted);font-size:13px;">7 deliverables (A–G) · Minor DB migrations</div>
+        <div><span class="effort effort-med">MEDIUM · 1 week</span></div>
+      </div>
+      <div class="sum-row">
+        <div class="sum-ph p3">3</div>
+        <div style="font-weight:700;color:var(--navy);">Customer Portal</div>
+        <div style="color:var(--muted);font-size:13px;">Photos in portal, invoice PDF download, device job history, warranty period tracking</div>
+        <div style="color:var(--muted);font-size:13px;">4 deliverables (A–D) · PDF generation</div>
+        <div><span class="effort effort-med">MEDIUM · 1 week</span></div>
+      </div>
+      <div class="sum-row">
+        <div class="sum-ph p4">4</div>
+        <div style="font-weight:700;color:var(--navy);">Reports Expansion</div>
+        <div style="color:var(--muted);font-size:13px;">Overdue aging report, branch revenue, parts cost vs margin, customer return rate, branch comparison table, CSV + PDF export</div>
+        <div style="color:var(--muted);font-size:13px;">6 deliverables (A–F) · Query-heavy</div>
+        <div><span class="effort effort-med">MEDIUM · 1 week</span></div>
+      </div>
+      <div class="sum-row">
+        <div class="sum-ph p5">5</div>
+        <div style="font-weight:700;color:var(--navy);">Branch &amp; Settings</div>
+        <div style="color:var(--muted);font-size:13px;">Working hours configurator, holiday schedule, job sheet prefix UI, estimate breakdown toggle</div>
+        <div style="color:var(--muted);font-size:13px;">4 deliverables (A–D) · UI wiring mostly</div>
+        <div><span class="effort effort-low">LOW · 3–4 days</span></div>
+      </div>
+      <div class="sum-row">
+        <div class="sum-ph p6">6</div>
+        <div style="font-weight:700;color:var(--navy);">Push &amp; WhatsApp Webhook</div>
+        <div style="color:var(--muted);font-size:13px;">Web push for technician assignments, WhatsApp reply parsing for auto-approval, estimated vs actual time tracking</div>
+        <div style="color:var(--muted);font-size:13px;">3 deliverables (A–C) · Infra + external setup</div>
+        <div><span class="effort effort-high">HIGH · 2 weeks</span></div>
+      </div>
+    </div>
+
+    <div class="total-bar">
+      <div class="total-group">
+        <div class="total-label">Total development estimate</div>
+        <div class="total-value"><em>~8 weeks</em></div>
+      </div>
+      <div class="total-group">
+        <div class="total-label">Total deliverables across all phases</div>
+        <div class="total-value"><em>32</em> items</div>
+      </div>
+      <div class="total-group">
+        <div class="total-label">Critical path (must ship first)</div>
+        <div class="total-value"><em>Phase 1</em> — 2 weeks</div>
+      </div>
+    </div>
+
+    <div class="callout callout-blue" style="margin-top:24px;">
+      <span class="callout-ico">ℹ</span>
+      <div><strong>Sequencing note:</strong> Phases 2, 3, 4, and 5 can be run in parallel after Phase 1 ships. Phase 6 (Push + WhatsApp webhook) is independent of all other phases and can be scheduled whenever the external provider setup is confirmed. Phase 1 is the only hard dependency.</div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  ServiceDesk · Build Completion Plan · Internal document · August 2026
+</footer>
+
+</body>
+</html>

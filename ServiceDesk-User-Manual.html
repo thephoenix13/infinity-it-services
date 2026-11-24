@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ServiceDesk — User Manual</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --navy:    #0f1e35;
+  --blue:    #1a56db;
+  --cream:   #f0f4ff;
+  --sky:     #60a5fa;
+  --ink:     #111827;
+  --mid:     #374151;
+  --muted:   #6b7280;
+  --border:  #e2e8f0;
+  --g-bg:    #d1fae5; --g-tx: #065f46;
+  --b-bg:    #dbeafe; --b-tx: #1e40af;
+  --y-bg:    #fef3c7; --y-tx: #92400e;
+  --r-bg:    #fee2e2; --r-tx: #991b1b;
+  --p-bg:    #ede9fe; --p-tx: #4c1d95;
+  --gr-bg:   #f3f4f6; --gr-tx:#374151;
+  --o-bg:    #fff7ed; --o-tx: #c2410c;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #e8edf5;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.wrap {
+  max-width: 860px;
+  margin: 32px auto;
+  background: white;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.09);
+}
+
+/* ---- COVER ---- */
+.cover {
+  background: var(--navy);
+  color: white;
+  padding: 48px 48px 40px;
+}
+.cover-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 40px;
+}
+.logo { display: flex; align-items: center; gap: 12px; }
+.logo-dot {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--blue);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 16px;
+}
+.logo-name { font-size: 20px; font-weight: 700; }
+.logo-sub  { font-size: 11px; opacity: 0.55; margin-top: 2px; }
+.doc-badge {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 11px;
+  opacity: 0.85;
+}
+.cover h1 { font-size: 30px; font-weight: 700; line-height: 1.2; margin-bottom: 12px; }
+.cover .subtitle { font-size: 14px; opacity: 0.7; max-width: 520px; margin-bottom: 32px; }
+.cover-meta {
+  display: flex; gap: 32px;
+  border-top: 1px solid rgba(255,255,255,0.15);
+  padding-top: 20px;
+}
+.cover-meta .item .label { font-size: 10px; opacity: 0.55; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; }
+.cover-meta .item .value { font-size: 13px; font-weight: 500; }
+
+/* ---- TOC ---- */
+.toc {
+  background: var(--cream);
+  padding: 28px 48px;
+  border-bottom: 1px solid var(--border);
+}
+.toc-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 14px; }
+.toc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 32px;
+}
+.toc-item {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 12.5px; color: var(--mid);
+  text-decoration: none;
+}
+.toc-item:hover { color: var(--navy); }
+.toc-num {
+  width: 22px; height: 22px; min-width: 22px;
+  background: var(--blue); color: white;
+  border-radius: 50%; font-size: 10px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ---- SECTIONS ---- */
+.section {
+  padding: 36px 48px;
+  border-bottom: 1px solid var(--border);
+}
+.section:last-child { border-bottom: none; }
+
+.section-eyebrow {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--blue); margin-bottom: 6px;
+}
+.section h2 {
+  font-size: 22px; font-weight: 700;
+  color: var(--navy); margin-bottom: 6px;
+}
+.section-lead {
+  font-size: 13px; color: var(--mid);
+  max-width: 640px; margin-bottom: 28px;
+}
+
+/* ---- FEATURE GROUPS ---- */
+.feat-group { margin-bottom: 28px; }
+.feat-group:last-child { margin-bottom: 0; }
+.feat-group-title {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--muted); margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1.5px solid var(--border);
+}
+
+/* ---- FEATURE CARDS ---- */
+.feat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.feat-card {
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  background: white;
+}
+.feat-card.full { grid-column: 1 / -1; }
+.feat-card-head {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.feat-title { font-size: 13px; font-weight: 600; color: var(--ink); }
+.feat-nav {
+  font-size: 10.5px; color: var(--blue);
+  font-family: monospace; font-weight: 500;
+  margin-bottom: 6px;
+}
+.feat-nav span { opacity: 0.4; margin: 0 3px; }
+.feat-desc { font-size: 12px; color: var(--mid); line-height: 1.6; }
+.feat-sub {
+  margin-top: 8px;
+  display: flex; flex-wrap: wrap; gap: 5px;
+}
+.feat-bullet {
+  font-size: 11px; background: var(--cream);
+  border: 1px solid var(--border); border-radius: 20px;
+  padding: 2px 9px; color: var(--mid);
+}
+
+/* ---- STATUS PILLS ---- */
+.pill {
+  display: inline-flex; align-items: center;
+  padding: 2px 9px; border-radius: 20px;
+  font-size: 10px; font-weight: 600; white-space: nowrap;
+}
+.p-live    { background: var(--g-bg);  color: var(--g-tx);  }
+.p-admin   { background: var(--b-bg);  color: var(--b-tx);  }
+.p-manager { background: var(--p-bg);  color: var(--p-tx);  }
+.p-fd      { background: var(--o-bg);  color: var(--o-tx);  }
+.p-tech    { background: var(--gr-bg); color: var(--gr-tx); }
+.p-all     { background: var(--y-bg);  color: var(--y-tx);  }
+
+/* ---- FLOW STEPS ---- */
+.flow { margin-top: 10px; }
+.flow-step {
+  display: flex; gap: 10px;
+  margin-bottom: 7px; align-items: flex-start;
+}
+.flow-step:last-child { margin-bottom: 0; }
+.flow-dot {
+  width: 20px; height: 20px; min-width: 20px;
+  background: var(--blue); color: white;
+  border-radius: 50%; font-size: 9px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 1px;
+}
+.flow-text { font-size: 11.5px; color: var(--mid); line-height: 1.5; }
+.flow-text strong { color: var(--ink); font-weight: 600; }
+
+/* ---- USE CASE (workflow walkthrough) ---- */
+.usecase {
+  background: var(--navy);
+  color: white;
+  border-radius: 10px;
+  padding: 24px 28px;
+  margin-top: 4px;
+}
+.usecase h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.usecase .uc-sub { font-size: 12px; opacity: 0.65; margin-bottom: 20px; }
+.uc-flow { display: flex; flex-direction: column; gap: 0; }
+.uc-step {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.uc-step:last-child { border-bottom: none; padding-bottom: 0; }
+.uc-num {
+  width: 28px; height: 28px; min-width: 28px;
+  background: rgba(255,255,255,0.15); border-radius: 50%;
+  font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 1px;
+}
+.uc-actor { font-size: 10px; opacity: 0.6; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
+.uc-action { font-size: 13px; font-weight: 500; line-height: 1.5; }
+.uc-detail { font-size: 11.5px; opacity: 0.65; margin-top: 2px; }
+
+/* ---- STATUS FLOW ---- */
+.status-flow {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  margin-top: 12px;
+}
+.s-badge {
+  font-size: 11px; font-weight: 600; padding: 4px 12px;
+  border-radius: 20px; border: 1.5px solid;
+}
+.s-arrow { font-size: 12px; color: var(--muted); }
+
+/* ---- NOTE BOX ---- */
+.note {
+  border-left: 3px solid var(--sky);
+  background: #eff6ff;
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  font-size: 12px; color: var(--mid);
+  margin-top: 16px;
+}
+.note strong { color: var(--navy); }
+
+/* ---- ROLE BLOCK ---- */
+.role-row {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;
+}
+.role-chip {
+  display: flex; align-items: center; gap: 7px;
+  border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 12px; font-weight: 500;
+}
+.role-chip .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+}
+
+/* ---- FOOTER ---- */
+.footer {
+  background: var(--navy); color: white;
+  padding: 14px 48px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.footer span { font-size: 11px; opacity: 0.6; }
+
+/* ---- PRINT ---- */
+@media print {
+  body { background: white; }
+  .wrap { margin: 0; border-radius: 0; box-shadow: none; max-width: 100%; }
+  .section { padding: 24px 36px; }
+  .cover { padding: 32px 36px 28px; }
+  .toc { padding: 20px 36px; }
+  .page-break { page-break-before: always; }
+  @page { margin: 8mm; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- COVER -->
+  <div class="cover">
+    <div class="cover-top">
+      <div class="logo">
+        <div class="logo-dot">SD</div>
+        <div>
+          <div class="logo-name">ServiceDesk</div>
+          <div class="logo-sub">by Perfect Skills Tech Solutions</div>
+        </div>
+      </div>
+      <div class="doc-badge">User Manual — Confidential</div>
+    </div>
+    <h1>ServiceDesk<br>User Manual</h1>
+    <p class="subtitle">How to use every screen, for every role — Front Desk, Technician, Manager, and Admin. Covers job lifecycle, photos, estimates, payments, and reports.</p>
+    <div class="cover-meta">
+      <div class="item"><div class="label">Platform</div><div class="value">servicedesk-app.vercel.app</div></div>
+      <div class="item"><div class="label">Version</div><div class="value">1.0 — September 2026</div></div>
+      <div class="item"><div class="label">Roles covered</div><div class="value">Front Desk · Technician · Manager · Admin</div></div>
+    </div>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <div class="toc-grid">
+      <a class="toc-item" href="#login"><div class="toc-num">1</div> Logging In & Roles</a>
+      <a class="toc-item" href="#manager"><div class="toc-num">4</div> Manager / Admin</a>
+      <a class="toc-item" href="#frontdesk"><div class="toc-num">2</div> Front Desk</a>
+      <a class="toc-item" href="#customer-portal"><div class="toc-num">5</div> Customer Tracking Portal</a>
+      <a class="toc-item" href="#technician"><div class="toc-num">3</div> Technician</a>
+      <a class="toc-item" href="#settings" style="grid-column:1/-1"><div class="toc-num">6</div> Settings & Configuration</a>
+    </div>
+  </div>
+
+
+  <!-- ===== 1. LOGIN & ROLES ===== -->
+  <div class="section" id="login">
+    <div class="section-eyebrow">Section 1</div>
+    <h2>Logging In & Roles</h2>
+    <p class="section-lead">ServiceDesk is a web app — open it in any browser on phone, tablet, or desktop. Each staff member logs in with their email and password. What they see depends on their role.</p>
+
+    <div class="role-row">
+      <div class="role-chip"><div class="dot" style="background:#1a56db"></div> <strong>Admin</strong> — Full access, settings, all branches</div>
+      <div class="role-chip"><div class="dot" style="background:#7c3aed"></div> <strong>Manager</strong> — Reports, team, all jobs in their branch</div>
+      <div class="role-chip"><div class="dot" style="background:#c2410c"></div> <strong>Front Desk</strong> — Create jobs, check-in devices, print invoices</div>
+      <div class="role-chip"><div class="dot" style="background:#374151"></div> <strong>Technician</strong> — View assigned jobs, update status, add parts & photos</div>
+    </div>
+
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="feat-card-head">
+          <span class="feat-title">Login Page</span>
+          <span class="pill p-all">All roles</span>
+        </div>
+        <div class="feat-nav">servicedesk-app.vercel.app<span>/</span>login</div>
+        <div class="feat-desc">Enter your email and password. Select your role (Front Desk, Technician, Manager, Admin) from the role cards shown. You are redirected to the dashboard after login.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-card-head">
+          <span class="feat-title">Branch Picker</span>
+          <span class="pill p-admin">Admin · Manager</span>
+        </div>
+        <div class="feat-nav">Top bar<span>→</span>Branch dropdown</div>
+        <div class="feat-desc">If your organisation has multiple branches, the top bar shows a branch dropdown. Admins can switch to "All Branches" to see data across the whole organisation.</div>
+      </div>
+      <div class="feat-card full">
+        <div class="feat-card-head">
+          <span class="feat-title">Forgot Password / Adding New Staff</span>
+          <span class="pill p-admin">Admin only</span>
+        </div>
+        <div class="feat-desc">New staff accounts are created by the admin under <strong>Settings → Team</strong>. Provide the staff member's full name, email, role, and branch. They receive a login link by email. Passwords can be reset from the login page using "Forgot password."</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===== 2. FRONT DESK ===== -->
+  <div class="section" id="frontdesk">
+    <div class="section-eyebrow">Section 2</div>
+    <h2>Front Desk</h2>
+    <p class="section-lead">The Front Desk role handles customer check-ins — creating jobs when a device is brought in, looking up existing customers, and printing invoices when a device is picked up.</p>
+
+    <div class="feat-group">
+      <div class="feat-group-title">Creating a New Job</div>
+      <div class="feat-grid">
+        <div class="feat-card full">
+          <div class="feat-card-head">
+            <span class="feat-title">New Job Form</span>
+            <span class="pill p-fd">Front Desk</span>
+          </div>
+          <div class="feat-nav">Sidebar<span>→</span>Jobs<span>→</span>New Job</div>
+          <div class="feat-desc">The New Job form is the main check-in screen. Fill in all sections top to bottom and tap "Create Job." The job gets a unique job number automatically (e.g., <strong>KTH-0042</strong> for Kothrud branch).</div>
+          <div class="flow" style="margin-top:14px;">
+            <div class="flow-step">
+              <div class="flow-dot">1</div>
+              <div class="flow-text"><strong>Customer details</strong> — Enter the customer's name and phone number. If they've visited before, the form auto-fills their profile. Email is optional.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-dot">2</div>
+              <div class="flow-text"><strong>Asset / Device</strong> — Enter the primary identifier (serial number, IMEI, or any unique ID). Fill in the custom fields your org has set up (brand, model, colour, etc.).</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-dot">3</div>
+              <div class="flow-text"><strong>Issue details</strong> — Select the issue category (e.g., "Screen Damage"), type a description, and check any accessories received (charger, bag, etc.).</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-dot">4</div>
+              <div class="flow-text"><strong>Photos</strong> — Tap the photo area to add inspection photos from your camera or gallery. Document existing damage before work begins.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-dot">5</div>
+              <div class="flow-text"><strong>Assignment & delivery</strong> — Select the technician to assign the job to, set the expected delivery date, and enter an advance payment if collected.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-dot">6</div>
+              <div class="flow-text"><strong>Create Job</strong> — Tap the button. The job is created with status <strong>"Received"</strong>. Print or share the job number with the customer.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feat-group">
+      <div class="feat-group-title">Managing Jobs</div>
+      <div class="feat-grid">
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Jobs List</span>
+            <span class="pill p-fd">Front Desk</span>
+          </div>
+          <div class="feat-nav">Sidebar<span>→</span>Jobs</div>
+          <div class="feat-desc">Shows all jobs for your branch. Filter by status (Received, Ready for Pickup, Overdue, etc.), search by job number, customer name, or phone. Overdue jobs are highlighted in red.</div>
+          <div class="feat-sub">
+            <span class="feat-bullet">Search by job # or name</span>
+            <span class="feat-bullet">Filter by status</span>
+            <span class="feat-bullet">Overdue alert</span>
+          </div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Job Detail</span>
+            <span class="pill p-fd">Front Desk</span>
+          </div>
+          <div class="feat-nav">Jobs list<span>→</span>Click job #</div>
+          <div class="feat-desc">Opens the full job card — customer info, device details, issue, parts & labour, photos, timeline, notes, and payments. Front Desk can view all info and record payments.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Print Invoice</span>
+            <span class="pill p-fd">Front Desk</span>
+          </div>
+          <div class="feat-nav">Job detail<span>→</span>Print Invoice button</div>
+          <div class="feat-desc">Generates a printable invoice showing job details, parts & labour, total amount, payments collected, and balance due. Opens in a new tab — use your browser's print function or save as PDF.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Customer History</span>
+            <span class="pill p-fd">Front Desk</span>
+          </div>
+          <div class="feat-nav">Sidebar<span>→</span>Customers</div>
+          <div class="feat-desc">Search for any customer by name or phone. Tap a customer to see all their past jobs. Useful for repeat customers to quickly reference previous repairs.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feat-group">
+      <div class="feat-group-title">Job Status — What Front Desk Sees</div>
+      <div class="feat-grid">
+        <div class="feat-card full">
+          <div class="feat-card-head">
+            <span class="feat-title">Estimate Approval</span>
+            <span class="pill p-fd">Front Desk</span>
+          </div>
+          <div class="feat-nav">Job detail<span>→</span>Customer Approval panel</div>
+          <div class="feat-desc">When a technician sends an estimate to the customer, Front Desk can see the approval status on the job detail page. If the customer approves or declines in person (or by phone), Front Desk can record the decision here — "Mark Approved" or "Mark Declined."</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===== 3. TECHNICIAN ===== -->
+  <div class="section" id="technician">
+    <div class="section-eyebrow">Section 3</div>
+    <h2>Technician</h2>
+    <p class="section-lead">Technicians see only the jobs assigned to them. They update the job status as work progresses, add parts and labour used, write diagnosis and resolution notes, and upload photos of the completed repair.</p>
+
+    <div class="feat-group">
+      <div class="feat-group-title">Viewing & Working on Jobs</div>
+      <div class="feat-grid">
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">My Jobs</span>
+            <span class="pill p-tech">Technician</span>
+          </div>
+          <div class="feat-nav">Sidebar<span>→</span>Jobs</div>
+          <div class="feat-desc">Technicians see all jobs assigned to them across all statuses. Use the status filter to narrow down — e.g., "In Service" to see active work. Overdue jobs are shown in red.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Job Detail</span>
+            <span class="pill p-tech">Technician</span>
+          </div>
+          <div class="feat-nav">Jobs list<span>→</span>Tap job #</div>
+          <div class="feat-desc">Shows the full job — device info, customer name, issue description, accessories received, parts added, photos, notes, and the complete status timeline.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feat-group">
+      <div class="feat-group-title">Job Status Flow</div>
+      <div class="feat-grid">
+        <div class="feat-card full">
+          <div class="feat-card-head">
+            <span class="feat-title">Moving a Job Through Statuses</span>
+            <span class="pill p-tech">Technician</span>
+          </div>
+          <div class="feat-nav">Job detail<span>→</span>Status buttons (top right)</div>
+          <div class="feat-desc">On the job detail page, blue buttons show the next available status transitions. Tap the button, add an optional note, and confirm. Each status change is logged in the timeline with a timestamp.</div>
+          <div class="status-flow">
+            <span class="s-badge" style="background:#f0f4ff;color:#1a56db;border-color:#bfdbfe;">Received</span>
+            <span class="s-arrow">→</span>
+            <span class="s-badge" style="background:#fff7ed;color:#c2410c;border-color:#fed7aa;">Inspection</span>
+            <span class="s-arrow">→</span>
+            <span class="s-badge" style="background:#fefce8;color:#a16207;border-color:#fde68a;">Estimate Sent</span>
+            <span class="s-arrow">→</span>
+            <span class="s-badge" style="background:#f0fdf4;color:#15803d;border-color:#bbf7d0;">Approved</span>
+            <span class="s-arrow">→</span>
+            <span class="s-badge" style="background:#fdf4ff;color:#7e22ce;border-color:#e9d5ff;">Waiting Parts</span>
+            <span class="s-arrow">→</span>
+            <span class="s-badge" style="background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe;">In Service</span>
+            <span class="s-arrow">→</span>
+            <span class="s-badge" style="background:#dcfce7;color:#166534;border-color:#86efac;">Ready</span>
+            <span class="s-arrow">→</span>
+            <span class="s-badge" style="background:#f5f3ff;color:#6d28d9;border-color:#ddd6fe;">Delivered</span>
+          </div>
+          <div class="note" style="margin-top:14px;"><strong>Note:</strong> Moving to "In Service" from "Approved" is only possible after the customer has approved the estimate. If the estimate is still pending, the "In Service" button is locked.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feat-group">
+      <div class="feat-group-title">Adding Parts, Labour & Notes</div>
+      <div class="feat-grid">
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Parts & Labour</span>
+            <span class="pill p-tech">Technician</span>
+          </div>
+          <div class="feat-nav">Job detail<span>→</span>Parts & Labour card</div>
+          <div class="feat-desc">Enter each part or labour charge — description, quantity, and unit cost. Toggle "Labour" checkbox for service charges. The running total updates automatically and feeds into the invoice.</div>
+          <div class="feat-sub">
+            <span class="feat-bullet">Parts or labour type</span>
+            <span class="feat-bullet">Qty + unit cost</span>
+            <span class="feat-bullet">Auto-totals</span>
+          </div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Send Estimate</span>
+            <span class="pill p-tech">Technician</span>
+          </div>
+          <div class="feat-nav">Job detail<span>→</span>Send Estimate panel</div>
+          <div class="feat-desc">When the job is in "Inspection" status and parts are added, the Send Estimate panel appears. Send the estimate to the customer via WhatsApp or SMS. The job moves to "Estimate Sent" status automatically.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Diagnosis Notes</span>
+            <span class="pill p-tech">Technician</span>
+          </div>
+          <div class="feat-nav">Job detail<span>→</span>Diagnosis Notes card</div>
+          <div class="feat-desc">Document what was found during inspection — the root cause, damage observed, or initial findings. Tap "Add diagnosis notes" or "Edit" to type and save.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Resolution Summary</span>
+            <span class="pill p-tech">Technician</span>
+          </div>
+          <div class="feat-nav">Job detail<span>→</span>Resolution Summary card</div>
+          <div class="feat-desc">After the repair is done, write what was fixed. This appears on the customer invoice. Tap "Add resolution summary" or "Edit" to fill in.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Internal Notes</span>
+            <span class="pill p-tech">Technician</span>
+          </div>
+          <div class="feat-nav">Job detail<span>→</span>Notes card</div>
+          <div class="feat-desc">Add timestamped notes visible to all staff on this job — updates, waiting on parts, customer callbacks, etc. Notes are not shown to the customer.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Waiting for Parts</span>
+            <span class="pill p-tech">Technician</span>
+          </div>
+          <div class="feat-nav">Job detail<span>→</span>→ Waiting Parts button</div>
+          <div class="feat-desc">When transitioning to "Waiting Parts," enter the expected parts arrival date. This is used for overdue alerts — the job will appear as overdue if parts don't arrive by that date.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feat-group">
+      <div class="feat-group-title">Photos</div>
+      <div class="feat-grid">
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Inspection Photos</span>
+            <span class="pill p-tech">Technician</span>
+          </div>
+          <div class="feat-nav">Job detail<span>→</span>Inspection Photos card</div>
+          <div class="feat-desc">Capture or upload photos showing the device's condition when it was received — cracks, damage, missing parts. On mobile, tap "Add Photos" to open your camera or gallery. Multiple photos allowed.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Post-Service Photos</span>
+            <span class="pill p-tech">Technician</span>
+          </div>
+          <div class="feat-nav">Job detail<span>→</span>Post-Service Photos card</div>
+          <div class="feat-desc">Once the job is In Service or Ready, upload photos of the completed repair. Documents the work done. The upload button is active only when the job is in the correct stage.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="usecase">
+      <h3>Technician Workflow — End to End</h3>
+      <p class="uc-sub">A typical job from assignment to delivery.</p>
+      <div class="uc-flow">
+        <div class="uc-step">
+          <div class="uc-num">1</div>
+          <div>
+            <div class="uc-actor">Technician</div>
+            <div class="uc-action">Opens Jobs list, finds the new job assigned by Front Desk. Status: <em>Received</em>.</div>
+          </div>
+        </div>
+        <div class="uc-step">
+          <div class="uc-num">2</div>
+          <div>
+            <div class="uc-actor">Technician</div>
+            <div class="uc-action">Taps → Inspection. Uploads inspection photos, writes diagnosis notes.</div>
+            <div class="uc-detail">Status moves to Inspection.</div>
+          </div>
+        </div>
+        <div class="uc-step">
+          <div class="uc-num">3</div>
+          <div>
+            <div class="uc-actor">Technician</div>
+            <div class="uc-action">Adds parts and labour required. Taps Send Estimate. Customer receives estimate via WhatsApp/SMS.</div>
+            <div class="uc-detail">Status moves to Estimate Sent.</div>
+          </div>
+        </div>
+        <div class="uc-step">
+          <div class="uc-num">4</div>
+          <div>
+            <div class="uc-actor">Customer / Front Desk</div>
+            <div class="uc-action">Customer approves estimate via their tracking portal, or Front Desk marks it approved in person.</div>
+            <div class="uc-detail">Status moves to Approved.</div>
+          </div>
+        </div>
+        <div class="uc-step">
+          <div class="uc-num">5</div>
+          <div>
+            <div class="uc-actor">Technician</div>
+            <div class="uc-action">Taps → In Service. Performs the repair. Adds resolution summary and post-service photos.</div>
+            <div class="uc-detail">Status moves to In Service. Timer starts.</div>
+          </div>
+        </div>
+        <div class="uc-step">
+          <div class="uc-num">6</div>
+          <div>
+            <div class="uc-actor">Technician</div>
+            <div class="uc-action">Taps → Ready. Front Desk is notified that the device is ready for pickup.</div>
+            <div class="uc-detail">Status moves to Ready.</div>
+          </div>
+        </div>
+        <div class="uc-step">
+          <div class="uc-num">7</div>
+          <div>
+            <div class="uc-actor">Front Desk</div>
+            <div class="uc-action">Collects final payment, prints invoice, hands device to customer. Marks → Delivered.</div>
+            <div class="uc-detail">Status moves to Delivered. Job closed.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ===== 4. MANAGER / ADMIN ===== -->
+  <div class="section" id="manager">
+    <div class="section-eyebrow">Section 4</div>
+    <h2>Manager / Admin</h2>
+    <p class="section-lead">Managers and Admins have access to reports, technician workload, payments, and all jobs across their branch. Admins additionally control organisation-wide settings and can see data across all branches.</p>
+
+    <div class="feat-group">
+      <div class="feat-group-title">Dashboard</div>
+      <div class="feat-grid">
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Stat Cards</span>
+            <span class="pill p-manager">Manager · Admin</span>
+          </div>
+          <div class="feat-nav">Sidebar<span>→</span>Dashboard</div>
+          <div class="feat-desc">Four headline numbers at a glance: <strong>Open Jobs</strong>, <strong>Ready for Pickup</strong>, <strong>Overdue</strong>, and <strong>Today's Revenue</strong>. Filtered by the selected branch.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Jobs by Status</span>
+            <span class="pill p-manager">Manager · Admin</span>
+          </div>
+          <div class="feat-nav">Dashboard<span>→</span>Left panel</div>
+          <div class="feat-desc">Horizontal bar chart showing how many jobs are in each status — Received, Inspection, In Service, Ready, etc. Spot bottlenecks instantly.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Quick Actions</span>
+            <span class="pill p-manager">Manager · Admin</span>
+          </div>
+          <div class="feat-nav">Dashboard<span>→</span>Right panel</div>
+          <div class="feat-desc">One-click links to New Job, View All Jobs, Ready for Pickup, Overdue Jobs, and Reports. Useful as a daily starting point.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Recent Jobs</span>
+            <span class="pill p-manager">Manager · Admin</span>
+          </div>
+          <div class="feat-nav">Dashboard<span>→</span>Bottom table</div>
+          <div class="feat-desc">Last 10 jobs created in the selected branch — job number, customer, status, and date. Click any row to open the full job detail.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feat-group">
+      <div class="feat-group-title">Reports</div>
+      <div class="feat-grid">
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Overview Tab</span>
+            <span class="pill p-manager">Manager · Admin</span>
+          </div>
+          <div class="feat-nav">Sidebar<span>→</span>Reports<span>→</span>Overview</div>
+          <div class="feat-desc">Total jobs, completed jobs, revenue, and average job value for the selected period (7, 30, or 90 days). Revenue trend bar chart and breakdown by category and technician.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Overdue Tab</span>
+            <span class="pill p-manager">Manager · Admin</span>
+          </div>
+          <div class="feat-nav">Reports<span>→</span>Overdue</div>
+          <div class="feat-desc">Full list of jobs past their expected delivery date. Shows customer, branch, technician, status, due date, and how many days overdue. Export to CSV available.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Revenue Tab</span>
+            <span class="pill p-admin">Admin only</span>
+          </div>
+          <div class="feat-nav">Reports<span>→</span>Revenue</div>
+          <div class="feat-desc">Daily revenue breakdown with totals. Shows revenue by branch across the organisation. Useful for tracking which branches are performing.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Margin Tab</span>
+            <span class="pill p-admin">Admin only</span>
+          </div>
+          <div class="feat-nav">Reports<span>→</span>Margin</div>
+          <div class="feat-desc">Revenue, parts cost, labour cost, gross margin, and margin % by branch. Helps identify where the shop is most profitable.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Customers Tab</span>
+            <span class="pill p-manager">Manager · Admin</span>
+          </div>
+          <div class="feat-nav">Reports<span>→</span>Customers</div>
+          <div class="feat-desc">Customer return rate — how many customers have come back for a second job. Shows total customers vs. repeat customers for the selected period.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Branches Tab</span>
+            <span class="pill p-admin">Admin only</span>
+          </div>
+          <div class="feat-nav">Reports<span>→</span>Branches</div>
+          <div class="feat-desc">Side-by-side comparison of all branches — total jobs, revenue, avg job value, and on-time delivery rate. Exportable to CSV.</div>
+        </div>
+      </div>
+      <div class="note"><strong>Print / Export:</strong> All report pages have a "🖨 Print / PDF" button at the top. For tabular sections, "Export CSV" downloads the data as a spreadsheet.</div>
+    </div>
+
+    <div class="feat-group">
+      <div class="feat-group-title">Technician Workload</div>
+      <div class="feat-grid">
+        <div class="feat-card full">
+          <div class="feat-card-head">
+            <span class="feat-title">Technician Workload View</span>
+            <span class="pill p-manager">Manager · Admin</span>
+          </div>
+          <div class="feat-nav">Sidebar<span>→</span>Technicians</div>
+          <div class="feat-desc">One card per technician showing: number of open jobs, how many are overdue, and a breakdown by status (Inspection, In Service, Ready, etc.). Tap "View all jobs" on any card to open the full job list filtered to that technician. Use this to reassign work when a technician is overloaded.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feat-group">
+      <div class="feat-group-title">Payments</div>
+      <div class="feat-grid">
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Recording Payments</span>
+            <span class="pill p-manager">Manager · Admin</span>
+          </div>
+          <div class="feat-nav">Job detail<span>→</span>Payments card</div>
+          <div class="feat-desc">Record payments collected at any point — advance at check-in or final at delivery. Enter amount and payment method (cash, UPI, card, etc.). The balance due is calculated automatically from parts total minus payments.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Advance Payment</span>
+            <span class="pill p-fd">Front Desk</span>
+          </div>
+          <div class="feat-nav">New Job form<span>→</span>Advance Payment field</div>
+          <div class="feat-desc">Advance collected at check-in can be entered directly in the New Job form. It is recorded as the first payment on the job automatically.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feat-group">
+      <div class="feat-group-title">Warranty</div>
+      <div class="feat-grid">
+        <div class="feat-card full">
+          <div class="feat-card-head">
+            <span class="feat-title">Setting a Warranty</span>
+            <span class="pill p-manager">Manager · Admin</span>
+          </div>
+          <div class="feat-nav">Job detail<span>→</span>Warranty card (visible after Delivered)</div>
+          <div class="feat-desc">Once a job is delivered, a warranty expiry date can be set on the job. The job detail page shows a green "Warranty valid until" badge when active, and a grey "Warranty expired" badge after the date passes. Useful for honouring repair warranties on repeat visits.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ===== 5. CUSTOMER TRACKING PORTAL ===== -->
+  <div class="section" id="customer-portal">
+    <div class="section-eyebrow">Section 5</div>
+    <h2>Customer Tracking Portal</h2>
+    <p class="section-lead">Every job gets a unique tracking link that can be shared with the customer. They can check their job status in real time — no app download, no login required.</p>
+
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="feat-card-head">
+          <span class="feat-title">Tracking Link</span>
+          <span class="pill p-all">Customer-facing</span>
+        </div>
+        <div class="feat-nav">Job detail<span>→</span>Customer tracking link</div>
+        <div class="feat-desc">The tracking URL (e.g., <em>servicedesk-app.vercel.app/track/abc123</em>) is shown at the bottom of every job detail page. Share it with the customer via WhatsApp or SMS. They can bookmark it and check status any time.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-card-head">
+          <span class="feat-title">What the Customer Sees</span>
+          <span class="pill p-all">Customer-facing</span>
+        </div>
+        <div class="feat-nav">Customer's phone browser</div>
+        <div class="feat-desc">The portal shows: current status, device identifier, estimated delivery date, technician name, and a status timeline. It does not show internal notes or pricing details until an estimate is sent.</div>
+      </div>
+      <div class="feat-card full">
+        <div class="feat-card-head">
+          <span class="feat-title">Estimate Approval</span>
+          <span class="pill p-all">Customer-facing</span>
+        </div>
+        <div class="feat-nav">Customer tracking portal<span>→</span>Approve / Decline buttons</div>
+        <div class="feat-desc">When an estimate is sent, the customer sees the itemised parts and labour list with the total cost on their tracking page. They can tap <strong>"Approve"</strong> to let the technician proceed, or <strong>"Decline"</strong> and provide a reason. The job status updates immediately and the technician/front desk is notified.</div>
+        <div class="note" style="margin-top:12px;"><strong>Offline approval:</strong> If the customer approves in person or over the phone, Front Desk or the Manager can mark the approval manually from the job detail page under the "Customer Approval" panel.</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===== 6. SETTINGS ===== -->
+  <div class="section" id="settings">
+    <div class="section-eyebrow">Section 6</div>
+    <h2>Settings & Configuration</h2>
+    <p class="section-lead">Settings are accessible only to Admins. Configure your organisation profile, branches, service categories, team members, and notifications from one place.</p>
+
+    <div class="feat-group">
+      <div class="feat-group-title">Organisation & Branches</div>
+      <div class="feat-grid">
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Organisation Settings</span>
+            <span class="pill p-admin">Admin only</span>
+          </div>
+          <div class="feat-nav">Settings<span>→</span>Organisation</div>
+          <div class="feat-desc">Set your shop name and address. This appears on printed invoices and the customer tracking portal.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Branches</span>
+            <span class="pill p-admin">Admin only</span>
+          </div>
+          <div class="feat-nav">Settings<span>→</span>Branches</div>
+          <div class="feat-desc">Add or edit branches. Each branch has a name, a 2–4 letter prefix (used in job numbers, e.g., "KTH"), address, and phone. The phone is shown on the estimate sent to the customer.</div>
+          <div class="feat-sub">
+            <span class="feat-bullet">Branch name</span>
+            <span class="feat-bullet">Job # prefix</span>
+            <span class="feat-bullet">Phone & address</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feat-group">
+      <div class="feat-group-title">Team Management</div>
+      <div class="feat-grid">
+        <div class="feat-card full">
+          <div class="feat-card-head">
+            <span class="feat-title">Adding Team Members</span>
+            <span class="pill p-admin">Admin only</span>
+          </div>
+          <div class="feat-nav">Settings<span>→</span>Team<span>→</span>Add member</div>
+          <div class="feat-desc">Enter full name, email, role, and branch assignment. The new member receives a login email. To deactivate someone, use the disable toggle on their row. Roles can be changed at any time.</div>
+          <div class="flow" style="margin-top:10px;">
+            <div class="flow-step">
+              <div class="flow-dot">1</div>
+              <div class="flow-text"><strong>Full name + email</strong> — Login credentials are sent to this email.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-dot">2</div>
+              <div class="flow-text"><strong>Role</strong> — Front Desk, Technician, Manager, or Admin.</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-dot">3</div>
+              <div class="flow-text"><strong>Branch</strong> — Which branch they belong to. Admins and Managers can be assigned to all branches.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feat-group">
+      <div class="feat-group-title">Service Categories & Branding</div>
+      <div class="feat-grid">
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Service Categories</span>
+            <span class="pill p-admin">Admin only</span>
+          </div>
+          <div class="feat-nav">Settings<span>→</span>Categories</div>
+          <div class="feat-desc">Define the issue categories shown in the New Job form — e.g., "Screen Damage," "Battery Replacement," "Water Damage." Add, edit, or remove as your service offering changes.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-head">
+            <span class="feat-title">Branding</span>
+            <span class="pill p-admin">Admin only</span>
+          </div>
+          <div class="feat-nav">Settings<span>→</span>Branding</div>
+          <div class="feat-desc">Upload your shop logo and set your brand colour. The logo appears on the customer portal and printed invoices. The brand colour is applied to buttons and accents throughout the app.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feat-group">
+      <div class="feat-group-title">Notifications</div>
+      <div class="feat-grid">
+        <div class="feat-card full">
+          <div class="feat-card-head">
+            <span class="feat-title">WhatsApp / SMS Notifications</span>
+            <span class="pill p-admin">Admin only</span>
+          </div>
+          <div class="feat-nav">Settings<span>→</span>Notifications</div>
+          <div class="feat-desc">Connect a WhatsApp or SMS provider to send customers automated messages at key job milestones — when an estimate is ready, when the repair is complete, and when the device is ready for pickup. Configure your provider API keys here and toggle which events trigger a message.</div>
+          <div class="feat-sub">
+            <span class="feat-bullet">Estimate sent</span>
+            <span class="feat-bullet">Job ready for pickup</span>
+            <span class="feat-bullet">Job delivered</span>
+            <span class="feat-bullet">WhatsApp or SMS</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note"><strong>Asset fields:</strong> The "Asset" section of the New Job form shows custom fields (brand, model, colour, etc.) that are configured under Settings → Organisation. Contact your admin to add or remove asset fields.</div>
+
+  </div>
+
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <span>ServiceDesk · Perfect Skills Tech Solutions · User Manual v1.0 · September 2026</span>
+    <span>servicedesk-app.vercel.app</span>
+  </div>
+
+</div>
+</body>
+</html>

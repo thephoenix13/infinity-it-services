@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ServiceDesk — Customer App Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800;9..40,900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-900:#061f18; --green-800:#0d3b2e; --green-700:#145040; --green-600:#1c6852;
+    --green-400:#3da07f; --green-200:#a8dccb; --green-100:#d6f0e7; --green-50:#edf8f3;
+    --terra:#c85b2a; --terra-500:#d97445; --terra-700:#b83f1c; --terra-100:#fce8db; --terra-50:#fdf4ef;
+    --sand:#f6f4f0; --sand-2:#efece5; --ink:#1a1714; --charcoal:#2e2a25; --muted:#6b655c; --line:#e3ded4; --white:#fff;
+    --good:#2a7a4b; --good-50:#e8f5ee; --warn:#b87c0a; --warn-50:#fef6e0; --bad:#b82a2a;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { height:100%; }
+  body {
+    font-family:"DM Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    color:var(--charcoal); background:#e7e3da;
+    -webkit-font-smoothing:antialiased; letter-spacing:-.005em;
+  }
+  .deck { height:100vh; overflow:hidden; }
+  .slide {
+    display:none; height:100vh; width:100vw; padding:5vh 6vw;
+    flex-direction:column; justify-content:center; position:relative;
+    background:var(--white); overflow:hidden;
+  }
+  .slide.active { display:flex; }
+  .slide.sand { background:var(--sand); }
+  .hero {
+    background:
+      radial-gradient(120% 80% at 78% 18%, var(--green-50) 0%, rgba(237,248,243,0) 55%),
+      radial-gradient(90% 70% at 12% 92%, var(--terra-50) 0%, rgba(253,244,239,0) 50%),
+      var(--white);
+  }
+
+  .eyebrow { text-transform:uppercase; letter-spacing:.18em; font-size:.78rem; font-weight:700; color:var(--terra); margin-bottom:.9rem; }
+  h1 { font-size:4.2rem; line-height:1.04; font-weight:800; color:var(--green-800); letter-spacing:-.03em; }
+  h2 { font-size:2.5rem; line-height:1.08; font-weight:800; color:var(--green-800); letter-spacing:-.02em; margin-bottom:1.1rem; }
+  h3 { font-size:1.15rem; font-weight:700; color:var(--green-700); letter-spacing:-.01em; }
+  p  { font-size:1.15rem; line-height:1.6; color:var(--charcoal); max-width:62ch; }
+  .hero h1 { font-size:4.5rem; }
+  .hero .tag { font-size:1.4rem; color:var(--muted); margin-top:1.3rem; max-width:50ch; line-height:1.45; }
+  .muted { color:var(--muted); }
+
+  .pill    { display:inline-flex; align-items:center; gap:.5rem; background:var(--green-50); color:var(--green-700); border:1px solid var(--green-100); border-radius:999px; padding:.4rem 1rem; font-size:.95rem; font-weight:600; }
+  .pill-sm { font-size:.74rem; padding:.22rem .65rem; }
+  .badge-row { display:flex; flex-wrap:wrap; gap:.7rem; margin-top:1.5rem; }
+
+  .callout { border-left:4px solid var(--terra); background:var(--terra-50); border-radius:0 14px 14px 0; padding:1rem 1.2rem; }
+  .callout p { font-size:1rem; color:var(--green-800); font-weight:600; line-height:1.55; margin:0; max-width:none; }
+  .callout-green { border-left:4px solid var(--green-600); background:var(--green-50); border-radius:0 14px 14px 0; padding:1rem 1.2rem; }
+  .callout-green p { font-size:.95rem; color:var(--green-800); font-weight:600; line-height:1.5; margin:0; max-width:none; }
+
+  ul.feat { list-style:none; }
+  ul.feat li { font-size:.97rem; padding:.38rem 0 .38rem 1.9rem; position:relative; color:var(--charcoal); }
+  ul.feat li::before { content:"✓"; position:absolute; left:0; color:var(--green-400); font-weight:800; }
+
+  /* ── Phone mockup ── */
+  .phone {
+    width:220px; flex:none;
+    background:#111; border-radius:36px; padding:3px;
+    box-shadow:0 20px 60px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.06) inset;
+    position:relative;
+  }
+  .phone-inner {
+    background:#fff; border-radius:34px; overflow:hidden; height:440px;
+    display:flex; flex-direction:column;
+  }
+  .phone-notch {
+    height:28px; background:#111; display:flex; align-items:flex-end; justify-content:center; padding-bottom:4px; flex:none;
+  }
+  .phone-notch-pill { width:72px; height:20px; background:#000; border-radius:0 0 12px 12px; }
+  .phone-screen { flex:1; overflow:hidden; display:flex; flex-direction:column; }
+
+  /* phone status bar */
+  .pstatus { display:flex; justify-content:space-between; align-items:center; padding:6px 14px 2px; flex:none; }
+  .pstatus .time { font-size:.65rem; font-weight:700; color:var(--charcoal); }
+  .pstatus .icons { font-size:.6rem; color:var(--charcoal); }
+
+  /* phone nav bar */
+  .pnav { background:#fff; border-top:1px solid var(--line); padding:6px 0 8px; display:flex; justify-content:space-around; flex:none; }
+  .pnav-item { display:flex; flex-direction:column; align-items:center; gap:2px; font-size:.55rem; color:var(--muted); font-weight:600; }
+  .pnav-item.active { color:var(--green-700); }
+  .pnav-item .ico { font-size:.9rem; }
+
+  /* phone content area */
+  .pscroll { flex:1; overflow:hidden; display:flex; flex-direction:column; }
+
+  /* phone header */
+  .phdr { padding:8px 14px 6px; background:#fff; flex:none; }
+  .phdr .ptitle { font-size:.82rem; font-weight:800; color:var(--green-800); }
+  .phdr .psub   { font-size:.62rem; color:var(--muted); margin-top:1px; }
+
+  /* status pill mini */
+  .spm { display:inline-flex; border-radius:999px; padding:.1rem .45rem; font-size:.55rem; font-weight:700; border:1px solid; }
+  .spm-grey   { background:#f3f4f6; color:#374151; border-color:#d1d5db; }
+  .spm-blue   { background:#eff6ff; color:#1d4ed8; border-color:#bfdbfe; }
+  .spm-amber  { background:#fffbeb; color:#92400e; border-color:#fcd34d; }
+  .spm-teal   { background:#f0fdf4; color:#065f46; border-color:#6ee7b7; }
+  .spm-green  { background:#dcfce7; color:#166534; border-color:#86efac; }
+  .spm-done   { background:var(--green-800); color:#fff; border-color:var(--green-800); }
+  .spm-orange { background:#fff7ed; color:#c2410c; border-color:#fdba74; }
+
+  /* job card on phone */
+  .pjob { margin:5px 10px; background:#fff; border:1px solid var(--line); border-radius:12px; padding:9px 11px; }
+  .pjob .jnum { font-family:"DM Mono",monospace; font-size:.6rem; font-weight:700; color:var(--green-700); }
+  .pjob .jname { font-size:.72rem; font-weight:700; color:var(--charcoal); margin:.15rem 0; }
+  .pjob .jmeta { display:flex; justify-content:space-between; align-items:center; }
+  .pjob .jcat  { font-size:.58rem; color:var(--muted); }
+
+  /* timeline dot */
+  .tldot { width:10px; height:10px; border-radius:50%; background:var(--green-700); flex:none; position:relative; z-index:2; }
+  .tldot.done { background:var(--green-400); }
+  .tldot.future { background:var(--line); }
+  .tlrow { display:flex; gap:8px; align-items:flex-start; position:relative; }
+  .tlrow::before { content:''; position:absolute; left:4px; top:10px; bottom:-6px; width:2px; background:var(--line); z-index:1; }
+  .tlrow:last-child::before { display:none; }
+  .tllabel { font-size:.62rem; font-weight:700; color:var(--charcoal); line-height:1.2; }
+  .tlsub   { font-size:.55rem; color:var(--muted); margin-top:1px; }
+
+  /* star rating */
+  .stars { display:flex; gap:3px; font-size:1rem; }
+  .star-filled { color:#f59e0b; }
+  .star-empty  { color:var(--line); }
+
+  /* flow arrow */
+  .flow-connector {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:4px; color:var(--green-400); font-size:.7rem; font-weight:700;
+    min-width:32px; flex:none;
+  }
+  .flow-connector .arrow { font-size:1.2rem; color:var(--green-600); }
+  .flow-connector .lbl { color:var(--muted); font-size:.6rem; text-align:center; line-height:1.3; max-width:48px; }
+
+  /* screen label */
+  .screen-label {
+    text-align:center; margin-top:.6rem;
+    font-size:.72rem; font-weight:700; color:var(--green-800);
+    letter-spacing:.04em;
+  }
+  .screen-sub {
+    text-align:center; font-size:.6rem; color:var(--muted); margin-top:.15rem;
+  }
+
+  /* feature card */
+  .feat-card {
+    background:#fff; border:1px solid var(--line); border-radius:14px; padding:1.1rem 1.2rem;
+  }
+  .feat-card h3 { margin-bottom:.35rem; font-size:1rem; }
+  .feat-card p  { font-size:.9rem; color:var(--muted); line-height:1.5; }
+
+  /* notif card on phone */
+  .pnotif { margin:4px 10px; background:var(--green-50); border:1px solid var(--green-100); border-radius:10px; padding:7px 10px; display:flex; gap:7px; align-items:flex-start; }
+  .pnotif .ni { font-size:.85rem; flex:none; margin-top:1px; }
+  .pnotif .nt { font-size:.6rem; font-weight:700; color:var(--green-800); line-height:1.3; }
+  .pnotif .ns { font-size:.55rem; color:var(--muted); margin-top:2px; }
+
+  /* grievance card */
+  .pgrev { margin:5px 10px; background:#fff7ed; border:1px solid #fed7aa; border-radius:12px; padding:8px 10px; }
+  .pgrev .gt { font-size:.65rem; font-weight:800; color:#c2410c; margin-bottom:3px; }
+  .pgrev .gs { font-size:.6rem; color:var(--muted); line-height:1.4; }
+  .pgrev .gbadge { display:inline-flex; border-radius:999px; padding:.1rem .45rem; font-size:.52rem; font-weight:700; background:#fff7ed; color:#c2410c; border:1px solid #fdba74; margin-top:4px; }
+
+  /* otp box */
+  .otp-row { display:flex; gap:5px; justify-content:center; margin:8px 0; }
+  .otp-box { width:28px; height:32px; border:1.5px solid var(--green-400); border-radius:7px; display:grid; place-items:center; font-size:.85rem; font-weight:800; color:var(--green-800); background:var(--green-50); }
+  .otp-box.empty { background:#fff; border-color:var(--line); color:transparent; }
+
+  /* small input mock */
+  .pinput { background:var(--sand); border:1px solid var(--line); border-radius:8px; padding:6px 10px; font-size:.65rem; color:var(--charcoal); margin:4px 10px; }
+  .pinput.focused { border-color:var(--green-400); background:var(--green-50); }
+  .pinput-label { font-size:.55rem; font-weight:700; color:var(--muted); margin:6px 10px 1px; text-transform:uppercase; letter-spacing:.06em; }
+
+  /* btn mock */
+  .pbtn { margin:6px 10px 0; background:var(--green-800); color:#fff; border-radius:9px; padding:7px 14px; font-size:.65rem; font-weight:700; text-align:center; }
+  .pbtn.outline { background:#fff; color:var(--green-800); border:1.5px solid var(--green-800); }
+
+  /* progress bar */
+  .pprog { margin:4px 10px; background:var(--line); border-radius:999px; height:4px; }
+  .pprog-fill { height:4px; background:var(--green-600); border-radius:999px; }
+
+  .footnote { position:absolute; bottom:3vh; left:6vw; right:6vw; font-size:.78rem; color:var(--muted); display:flex; justify-content:space-between; align-items:center; }
+  .progress  { position:fixed; top:0; left:0; height:3px; background:var(--green-700); z-index:60; transition:width .25s ease; }
+  .counter   { position:fixed; bottom:20px; left:24px; color:var(--muted); font-size:.82rem; z-index:50; font-family:"DM Mono",monospace; }
+  .nav       { position:fixed; bottom:16px; right:22px; display:flex; gap:8px; z-index:50; }
+  .nav button { background:#fff; border:1px solid var(--line); color:var(--green-800); border-radius:9px; width:40px;height:40px; font-size:1.2rem; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+  .nav button:hover { background:var(--green-50); }
+
+  @media print {
+    @page { size:1280px 720px; margin:0; }
+    body { background:#fff; }
+    .deck { height:auto; overflow:visible; }
+    .slide { display:flex !important; page-break-after:always; height:100vh; }
+    .nav,.counter,.progress { display:none; }
+  }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="deck">
+
+  <!-- ═══ SLIDE 1: COVER ═══ -->
+  <section class="slide hero active">
+    <div style="margin:auto 0; position:relative; z-index:1;">
+      <div class="eyebrow">UX Flow Document · August 2026</div>
+      <h1>Customer App —<br/><span style="color:var(--terra);">Screen & Flow</span></h1>
+      <p class="tag">A screen-by-screen UX flow for the ServiceDesk customer-facing app. Login, job tracking, notifications, feedback, and grievances — all in one place.</p>
+      <div class="badge-row">
+        <span class="pill">📱 Mobile-first PWA</span>
+        <span class="pill">🔔 Push + WhatsApp alerts</span>
+        <span class="pill">10 screens · Full flow</span>
+      </div>
+    </div>
+    <div class="footnote">
+      <span>ServiceDesk · Customer App Flow</span>
+      <span>Aashish · aashish@perfectskills.in · +91-8530940761</span>
+    </div>
+  </section>
+
+  <!-- ═══ SLIDE 2: OVERALL FLOW ═══ -->
+  <section class="slide sand">
+    <div class="eyebrow">App architecture</div>
+    <h2 style="margin-bottom:.7rem;">How the screens connect.</h2>
+    <div style="display:flex; flex-direction:column; gap:1rem;">
+      <!-- Row 1 -->
+      <div style="display:flex; align-items:center; gap:.5rem; flex-wrap:wrap;">
+        <div style="background:#fff; border:1.5px solid var(--green-400); border-radius:12px; padding:.55rem 1rem; font-size:.88rem; font-weight:700; color:var(--green-800);">📲 WhatsApp Link<br/><span style="font-size:.72rem; font-weight:400; color:var(--muted);">or direct PWA</span></div>
+        <div style="color:var(--green-600); font-size:1.2rem;">→</div>
+        <div style="background:var(--green-800); border-radius:12px; padding:.55rem 1rem; font-size:.88rem; font-weight:700; color:#fff;">🔐 Login / OTP</div>
+        <div style="color:var(--green-600); font-size:1.2rem;">→</div>
+        <div style="background:#fff; border:1px solid var(--line); border-radius:12px; padding:.55rem 1rem; font-size:.88rem; font-weight:700; color:var(--green-800);">🏠 Home — My Jobs</div>
+      </div>
+      <!-- Row 2 -->
+      <div style="display:flex; align-items:flex-start; gap:1.5rem; padding-left:2rem;">
+        <div style="display:flex; flex-direction:column; gap:.5rem; align-items:center;">
+          <div style="color:var(--green-400); font-size:1rem;">↓</div>
+          <div style="background:#fff; border:1px solid var(--line); border-radius:12px; padding:.55rem 1rem; font-size:.82rem; font-weight:700; color:var(--green-800); text-align:center;">📋 Job Detail<br/><span style="font-size:.7rem; font-weight:400; color:var(--muted);">Status timeline</span></div>
+          <div style="color:var(--green-400); font-size:1rem;">↓</div>
+          <div style="background:#fff; border:1px solid var(--line); border-radius:12px; padding:.55rem 1rem; font-size:.82rem; font-weight:700; color:var(--green-800); text-align:center;">⭐ Feedback<br/><span style="font-size:.7rem; font-weight:400; color:var(--muted);">Post-delivery only</span></div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:.5rem; align-items:center;">
+          <div style="color:var(--green-400); font-size:1rem;">↓</div>
+          <div style="background:#fff; border:1px solid var(--line); border-radius:12px; padding:.55rem 1rem; font-size:.82rem; font-weight:700; color:var(--green-800); text-align:center;">🔔 Notifications<br/><span style="font-size:.7rem; font-weight:400; color:var(--muted);">Alert history</span></div>
+          <div style="color:var(--green-400); font-size:1rem;">↓</div>
+          <div style="background:#fff7ed; border:1px solid #fdba74; border-radius:12px; padding:.55rem 1rem; font-size:.82rem; font-weight:700; color:#c2410c; text-align:center;">⚠️ Grievance<br/><span style="font-size:.7rem; font-weight:400; color:var(--muted);">Raise a complaint</span></div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:.5rem; align-items:center;">
+          <div style="color:var(--green-400); font-size:1rem;">↓</div>
+          <div style="background:#fff; border:1px solid var(--line); border-radius:12px; padding:.55rem 1rem; font-size:.82rem; font-weight:700; color:var(--green-800); text-align:center;">👤 Profile<br/><span style="font-size:.7rem; font-weight:400; color:var(--muted);">History + settings</span></div>
+        </div>
+      </div>
+      <!-- Notification trigger -->
+      <div style="display:flex; align-items:center; gap:.7rem; padding-left:1rem;">
+        <div style="background:var(--terra-50); border:1px solid var(--terra-100); border-radius:12px; padding:.55rem 1rem; font-size:.82rem; font-weight:700; color:var(--terra-700);">🏪 Service Centre<br/><span style="font-size:.7rem; font-weight:400; color:var(--muted);">Updates job status</span></div>
+        <div style="color:var(--terra); font-size:1.2rem;">→</div>
+        <div style="background:var(--terra-50); border:1px solid var(--terra-100); border-radius:12px; padding:.55rem 1rem; font-size:.82rem; font-weight:700; color:var(--terra-700);">📩 WhatsApp / Push<br/><span style="font-size:.7rem; font-weight:400; color:var(--muted);">Auto-fires to customer</span></div>
+        <div style="color:var(--terra); font-size:1.2rem;">→</div>
+        <div style="background:var(--terra-50); border:1px solid var(--terra-100); border-radius:12px; padding:.55rem 1rem; font-size:.82rem; font-weight:700; color:var(--terra-700);">📱 Customer opens app<br/><span style="font-size:.7rem; font-weight:400; color:var(--muted);">Deep-links to job</span></div>
+      </div>
+    </div>
+    <div class="footnote"><span>ServiceDesk · Customer App</span><span>Mobile PWA — works on any smartphone browser</span></div>
+  </section>
+
+  <!-- ═══ SLIDE 3: LOGIN / OTP ═══ -->
+  <section class="slide">
+    <div class="eyebrow">Screen 1 · Onboarding & Login</div>
+    <h2 style="margin-bottom:.7rem;">Phone + OTP. No password to remember.</h2>
+    <div style="display:flex; gap:2.5rem; align-items:flex-start;">
+
+      <!-- Phone: enter phone -->
+      <div>
+        <div class="phone">
+          <div class="phone-inner">
+            <div class="phone-notch"><div class="phone-notch-pill"></div></div>
+            <div class="phone-screen">
+              <div class="pstatus"><span class="time">9:41</span><span class="icons">▲▲▲ 🔋</span></div>
+              <div style="flex:1; display:flex; flex-direction:column; justify-content:center; padding:0 10px;">
+                <div style="text-align:center; margin-bottom:16px;">
+                  <div style="width:42px;height:42px;border-radius:12px;background:var(--green-800);display:grid;place-items:center;font-size:1.1rem;font-weight:800;color:#fff;margin:0 auto 8px;">S</div>
+                  <div style="font-size:.85rem; font-weight:800; color:var(--green-800);">ServiceDesk</div>
+                  <div style="font-size:.6rem; color:var(--muted); margin-top:2px;">Track your repairs</div>
+                </div>
+                <div style="font-size:.6rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; padding:0 2px;">Mobile Number</div>
+                <div style="background:var(--green-50); border:1.5px solid var(--green-400); border-radius:9px; padding:7px 10px; font-size:.72rem; font-weight:700; color:var(--green-800); display:flex; align-items:center; gap:5px; margin-bottom:8px;">
+                  <span style="color:var(--muted);">+91</span>
+                  <span>98765 43210</span>
+                  <span style="margin-left:auto; width:2px; height:14px; background:var(--green-700); border-radius:1px; animation:none;"></span>
+                </div>
+                <div class="pbtn" style="margin:0;">Send OTP →</div>
+                <div style="font-size:.55rem; color:var(--muted); text-align:center; margin-top:8px; line-height:1.4;">New customers are registered automatically.<br/>No separate sign-up needed.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-label">Enter Phone</div>
+        <div class="screen-sub">Auto-detect existing customer</div>
+      </div>
+
+      <div class="flow-connector"><div class="arrow">→</div><div class="lbl">OTP sent via SMS</div></div>
+
+      <!-- Phone: OTP -->
+      <div>
+        <div class="phone">
+          <div class="phone-inner">
+            <div class="phone-notch"><div class="phone-notch-pill"></div></div>
+            <div class="phone-screen">
+              <div class="pstatus"><span class="time">9:41</span><span class="icons">▲▲▲ 🔋</span></div>
+              <div style="flex:1; display:flex; flex-direction:column; justify-content:center; padding:0 10px;">
+                <div style="text-align:center; margin-bottom:14px;">
+                  <div style="font-size:1.5rem; margin-bottom:6px;">📲</div>
+                  <div style="font-size:.82rem; font-weight:800; color:var(--green-800);">Verify your number</div>
+                  <div style="font-size:.6rem; color:var(--muted); margin-top:3px; line-height:1.4;">OTP sent to +91 987XX 43210</div>
+                </div>
+                <div class="otp-row">
+                  <div class="otp-box">4</div>
+                  <div class="otp-box">7</div>
+                  <div class="otp-box">2</div>
+                  <div class="otp-box">1</div>
+                  <div class="otp-box empty">_</div>
+                  <div class="otp-box empty">_</div>
+                </div>
+                <div style="font-size:.55rem; color:var(--muted); text-align:center; margin:8px 0;">Didn't receive? <span style="color:var(--green-700); font-weight:700;">Resend in 0:23</span></div>
+                <div class="pbtn" style="margin:0; opacity:.5;">Verify OTP</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-label">Enter OTP</div>
+        <div class="screen-sub">6-digit code, auto-verify</div>
+      </div>
+
+      <div class="flow-connector"><div class="arrow">→</div><div class="lbl">Verified</div></div>
+
+      <!-- Phone: welcome back -->
+      <div>
+        <div class="phone">
+          <div class="phone-inner">
+            <div class="phone-notch"><div class="phone-notch-pill"></div></div>
+            <div class="phone-screen">
+              <div class="pstatus"><span class="time">9:41</span><span class="icons">▲▲▲ 🔋</span></div>
+              <div style="flex:1; display:flex; flex-direction:column; justify-content:center; padding:0 10px;">
+                <div style="text-align:center;">
+                  <div style="font-size:2rem; margin-bottom:8px;">🎉</div>
+                  <div style="font-size:.88rem; font-weight:800; color:var(--green-800);">Welcome back,</div>
+                  <div style="font-size:1rem; font-weight:900; color:var(--green-700); margin-top:2px;">Rahul!</div>
+                  <div style="font-size:.6rem; color:var(--muted); margin-top:8px; line-height:1.5;">You have 1 active job<br/>and 2 past repairs.</div>
+                  <div class="pbtn" style="margin:16px 0 0;">Go to My Jobs →</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-label">Welcome Screen</div>
+        <div class="screen-sub">New customer → name collection</div>
+      </div>
+
+      <div style="flex:1; display:flex; flex-direction:column; gap:.8rem; align-self:center;">
+        <div class="callout-green">
+          <p>Returning customers are recognised by phone number — name and history load automatically. No separate registration form.</p>
+        </div>
+        <div style="background:#fff; border:1px solid var(--line); border-radius:12px; padding:1rem 1.1rem;">
+          <h3 style="font-size:.88rem; margin-bottom:.5rem;">New customer flow</h3>
+          <ul class="feat" style="margin:0;">
+            <li style="font-size:.85rem;">Enter phone → OTP sent</li>
+            <li style="font-size:.85rem;">Enter name (one-time, pre-filled on next visit)</li>
+            <li style="font-size:.85rem;">Profile created, lands on Home</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footnote"><span>ServiceDesk · Login</span><span>Phone OTP — no password, no app download required</span></div>
+  </section>
+
+  <!-- ═══ SLIDE 4: HOME — MY JOBS ═══ -->
+  <section class="slide sand">
+    <div class="eyebrow">Screen 2 · Home</div>
+    <h2 style="margin-bottom:.7rem;">All repairs, at a glance.</h2>
+    <div style="display:flex; gap:2.5rem; align-items:flex-start;">
+
+      <div>
+        <div class="phone">
+          <div class="phone-inner">
+            <div class="phone-notch"><div class="phone-notch-pill"></div></div>
+            <div class="phone-screen">
+              <div class="pstatus"><span class="time">9:41</span><span class="icons">🔔 🔋</span></div>
+              <div class="phdr">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <div class="ptitle">Hi Rahul 👋</div>
+                    <div class="psub">1 active repair</div>
+                  </div>
+                  <div style="font-size:.55rem; background:var(--green-800); color:#fff; border-radius:999px; padding:.2rem .55rem; font-weight:700;">🔔 2</div>
+                </div>
+              </div>
+              <div class="pscroll">
+                <div style="padding:4px 10px 2px; font-size:.6rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em;">Active</div>
+                <div class="pjob" style="border-left:3px solid var(--green-600);">
+                  <div class="jnum">INF-042</div>
+                  <div class="jname">HP Pavilion 15</div>
+                  <div class="jmeta">
+                    <span class="jcat">Battery Replacement</span>
+                    <span class="spm spm-teal">In Service</span>
+                  </div>
+                  <div style="margin-top:5px;">
+                    <div class="pprog"><div class="pprog-fill" style="width:62%;"></div></div>
+                    <div style="font-size:.52rem; color:var(--muted); margin-top:2px;">Expected: 20 Aug · Kothrud branch</div>
+                  </div>
+                </div>
+                <div style="padding:4px 10px 2px; font-size:.6rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em;">Past</div>
+                <div class="pjob">
+                  <div class="jnum">INF-027</div>
+                  <div class="jname">Dell Inspiron 14</div>
+                  <div class="jmeta">
+                    <span class="jcat">Screen Repair</span>
+                    <span class="spm spm-done">Delivered</span>
+                  </div>
+                </div>
+                <div class="pjob">
+                  <div class="jnum">INF-019</div>
+                  <div class="jname">HP Pavilion 15</div>
+                  <div class="jmeta">
+                    <span class="jcat">Keyboard</span>
+                    <span class="spm spm-done">Delivered</span>
+                  </div>
+                </div>
+              </div>
+              <div class="pnav">
+                <div class="pnav-item active"><span class="ico">🏠</span>Home</div>
+                <div class="pnav-item"><span class="ico">🔔</span>Alerts</div>
+                <div class="pnav-item"><span class="ico">⚠️</span>Grievance</div>
+                <div class="pnav-item"><span class="ico">👤</span>Profile</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-label">My Jobs — Home</div>
+        <div class="screen-sub">Active jobs pinned at top</div>
+      </div>
+
+      <div style="flex:1; display:flex; flex-direction:column; gap:.9rem; align-self:center;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:.8rem;">
+          <div class="feat-card">
+            <h3>Active Jobs</h3>
+            <p>Pinned at the top with a progress bar and expected delivery date. Colour-coded border by status.</p>
+          </div>
+          <div class="feat-card">
+            <h3>Past Jobs</h3>
+            <p>All completed repairs listed below. Tap any to open the full detail and download receipt.</p>
+          </div>
+          <div class="feat-card">
+            <h3>Notification Badge</h3>
+            <p>Bell icon shows unread alerts count. Tap to open the Notifications screen.</p>
+          </div>
+          <div class="feat-card">
+            <h3>Progress Bar</h3>
+            <p>Visual indicator of where the job is in its lifecycle — from Received to Delivered.</p>
+          </div>
+        </div>
+        <div class="callout">
+          <p>Tapping any job card → opens full Job Detail screen with complete status timeline and cost breakdown.</p>
+        </div>
+      </div>
+    </div>
+    <div class="footnote"><span>ServiceDesk · Home</span><span>Active jobs top, history below, 4-tab bottom nav</span></div>
+  </section>
+
+  <!-- ═══ SLIDE 5: JOB DETAIL ═══ -->
+  <section class="slide">
+    <div class="eyebrow">Screen 3 · Job Detail</div>
+    <h2 style="margin-bottom:.7rem;">Full transparency — status, parts, cost.</h2>
+    <div style="display:flex; gap:2.5rem; align-items:flex-start;">
+
+      <div>
+        <div class="phone">
+          <div class="phone-inner">
+            <div class="phone-notch"><div class="phone-notch-pill"></div></div>
+            <div class="phone-screen">
+              <div class="pstatus"><span class="time">9:41</span><span class="icons">🔋</span></div>
+              <div class="phdr" style="background:var(--green-800); padding:10px 14px 8px;">
+                <div style="font-size:.6rem; color:var(--green-200); font-family:'DM Mono',monospace;">INF-042</div>
+                <div style="font-size:.82rem; font-weight:800; color:#fff;">HP Pavilion 15</div>
+                <div style="display:flex; align-items:center; gap:5px; margin-top:3px;">
+                  <span class="spm spm-teal">In Service</span>
+                  <span style="font-size:.55rem; color:var(--green-200);">· Kothrud Branch</span>
+                </div>
+              </div>
+              <div class="pscroll" style="overflow-y:auto; padding:6px 0;">
+                <div style="padding:3px 10px 2px; font-size:.58rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em;">Status Timeline</div>
+                <div style="padding:4px 10px; display:flex; flex-direction:column; gap:4px;">
+                  <div class="tlrow"><div class="tldot done"></div><div><div class="tllabel">Received</div><div class="tlsub">Aug 14 · 11:23 AM</div></div></div>
+                  <div class="tlrow"><div class="tldot done"></div><div><div class="tllabel">Inspection done</div><div class="tlsub">Aug 15 · 2:10 PM</div></div></div>
+                  <div class="tlrow"><div class="tldot done"></div><div><div class="tllabel">Estimate sent ₹1,100</div><div class="tlsub">Aug 15 · 3:45 PM · Approved</div></div></div>
+                  <div class="tlrow"><div class="tldot"></div><div><div class="tllabel" style="color:var(--green-700);">In Service ← Now</div><div class="tlsub">Aug 16 · 10:00 AM</div></div></div>
+                  <div class="tlrow"><div class="tldot future"></div><div><div class="tllabel" style="color:var(--muted);">Ready for Collection</div><div class="tlsub" style="color:var(--line);">Pending</div></div></div>
+                </div>
+                <div style="margin:4px 10px; background:var(--sand); border-radius:10px; padding:7px 9px;">
+                  <div style="font-size:.58rem; font-weight:700; color:var(--muted); margin-bottom:4px; text-transform:uppercase; letter-spacing:.06em;">Cost Estimate</div>
+                  <div style="display:flex; justify-content:space-between; font-size:.62rem; color:var(--charcoal); margin-bottom:2px;"><span>Battery (OEM)</span><span>₹800</span></div>
+                  <div style="display:flex; justify-content:space-between; font-size:.62rem; color:var(--charcoal); margin-bottom:4px;"><span>Labour</span><span>₹300</span></div>
+                  <div style="display:flex; justify-content:space-between; font-size:.68rem; font-weight:800; color:var(--green-800); border-top:1px solid var(--line); padding-top:3px;"><span>Total</span><span>₹1,100</span></div>
+                </div>
+                <div style="margin:4px 10px; font-size:.6rem; color:var(--muted);">📍 FC Road, Kothrud · 📞 020-XXXXXXXX</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-label">Job Detail</div>
+        <div class="screen-sub">Timeline + cost breakdown</div>
+      </div>
+
+      <div style="flex:1; display:flex; flex-direction:column; gap:.8rem; align-self:center;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:.8rem;">
+          <div class="feat-card">
+            <h3>Status Timeline</h3>
+            <p>Every status change with timestamp. Completed steps in green, current in brand colour, pending greyed out.</p>
+          </div>
+          <div class="feat-card">
+            <h3>Cost Breakdown</h3>
+            <p>Parts and labour listed individually. Customer sees the estimate total before approval and final bill after service.</p>
+          </div>
+          <div class="feat-card">
+            <h3>Technician Notes</h3>
+            <p>Any notes the technician marks as customer-visible appear here — diagnostic findings, repair notes.</p>
+          </div>
+          <div class="feat-card">
+            <h3>Branch Contact</h3>
+            <p>Address and phone number of the branch handling the repair. Tap phone → dials directly.</p>
+          </div>
+        </div>
+        <div class="callout-green">
+          <p>When job status = Delivered, a <strong>Rate this repair ⭐</strong> button appears — opens the Feedback screen.</p>
+        </div>
+        <div style="background:#fff; border:1px solid var(--line); border-radius:12px; padding:.9rem 1rem;">
+          <div style="font-size:.78rem; font-weight:700; color:var(--green-800); margin-bottom:.4rem;">Advance paid vs. balance</div>
+          <div style="font-size:.82rem; color:var(--muted);">Advance collected at intake: <strong style="color:var(--green-800);">₹500</strong></div>
+          <div style="font-size:.82rem; color:var(--muted);">Remaining on collection: <strong style="color:var(--terra);">₹600</strong></div>
+        </div>
+      </div>
+    </div>
+    <div class="footnote"><span>ServiceDesk · Job Detail</span><span>Real-time — reflects every update the service centre makes</span></div>
+  </section>
+
+  <!-- ═══ SLIDE 6: NOTIFICATIONS ═══ -->
+  <section class="slide sand">
+    <div class="eyebrow">Screen 4 · Notifications</div>
+    <h2 style="margin-bottom:.7rem;">Every update, automatically delivered.</h2>
+    <div style="display:flex; gap:2.5rem; align-items:flex-start;">
+
+      <div>
+        <div class="phone">
+          <div class="phone-inner">
+            <div class="phone-notch"><div class="phone-notch-pill"></div></div>
+            <div class="phone-screen">
+              <div class="pstatus"><span class="time">9:41</span><span class="icons">🔋</span></div>
+              <div class="phdr">
+                <div class="ptitle">Notifications</div>
+                <div class="psub">2 unread</div>
+              </div>
+              <div class="pscroll" style="padding:4px 0; overflow-y:auto;">
+                <div style="padding:2px 10px 3px; font-size:.55rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em;">Today</div>
+                <div class="pnotif" style="background:var(--green-50); border-color:var(--green-200);">
+                  <div class="ni">✅</div>
+                  <div>
+                    <div class="nt">Estimate approved — work begins!</div>
+                    <div class="ns">INF-042 · HP Pavilion 15 · 10:00 AM</div>
+                    <div style="margin-top:4px; font-size:.55rem; background:var(--green-800); color:#fff; border-radius:5px; padding:.15rem .45rem; display:inline-block; font-weight:700;">View Job →</div>
+                  </div>
+                </div>
+                <div class="pnotif" style="background:var(--green-50); border-color:var(--green-200);">
+                  <div class="ni">🔧</div>
+                  <div>
+                    <div class="nt">Your device is In Service</div>
+                    <div class="ns">INF-042 · HP Pavilion 15 · 9:55 AM</div>
+                  </div>
+                </div>
+                <div style="padding:4px 10px 3px; font-size:.55rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-top:4px;">Yesterday</div>
+                <div class="pnotif" style="background:#fff; border-color:var(--line); opacity:.7;">
+                  <div class="ni">📋</div>
+                  <div>
+                    <div class="nt">Estimate ready — ₹1,100</div>
+                    <div class="ns">INF-042 · Please approve to proceed</div>
+                  </div>
+                </div>
+                <div class="pnotif" style="background:#fff; border-color:var(--line); opacity:.7;">
+                  <div class="ni">📦</div>
+                  <div>
+                    <div class="nt">Device received at Kothrud</div>
+                    <div class="ns">INF-042 · Aug 14 · 11:23 AM</div>
+                  </div>
+                </div>
+              </div>
+              <div class="pnav">
+                <div class="pnav-item"><span class="ico">🏠</span>Home</div>
+                <div class="pnav-item active"><span class="ico">🔔</span>Alerts</div>
+                <div class="pnav-item"><span class="ico">⚠️</span>Grievance</div>
+                <div class="pnav-item"><span class="ico">👤</span>Profile</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-label">Notifications</div>
+        <div class="screen-sub">Unread highlighted, tap → job</div>
+      </div>
+
+      <div style="flex:1; display:flex; flex-direction:column; gap:.9rem; align-self:center;">
+        <p style="font-size:1rem; color:var(--muted); margin-bottom:.3rem;">Notifications are sent automatically by the service centre's notification rules. Customers receive them via WhatsApp/SMS and see the same history in-app.</p>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:.8rem;">
+          <div class="feat-card">
+            <h3>WhatsApp / SMS push</h3>
+            <p>Fires the moment a job status changes. Configured by the service centre — customers don't need to opt in manually.</p>
+          </div>
+          <div class="feat-card">
+            <h3>In-app alert log</h3>
+            <p>Full notification history grouped by date. Unread alerts are highlighted. Tapping any notification deep-links to that job.</p>
+          </div>
+          <div class="feat-card">
+            <h3>Action buttons inline</h3>
+            <p>"View Job →" button inside each alert. For estimate notifications — "Approve" button inline so customer doesn't need to open the full job.</p>
+          </div>
+          <div class="feat-card">
+            <h3>Notification types</h3>
+            <p>Job received · Inspection done · Estimate sent · Approved · In Service · Ready for pickup · Delivered</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footnote"><span>ServiceDesk · Notifications</span><span>WhatsApp + SMS + in-app — all three channels synced</span></div>
+  </section>
+
+  <!-- ═══ SLIDE 7: FEEDBACK ═══ -->
+  <section class="slide">
+    <div class="eyebrow">Screen 5 · Feedback & Rating</div>
+    <h2 style="margin-bottom:.7rem;">Rate the repair after collection.</h2>
+    <div style="display:flex; gap:2.5rem; align-items:flex-start;">
+
+      <div>
+        <div class="phone">
+          <div class="phone-inner">
+            <div class="phone-notch"><div class="phone-notch-pill"></div></div>
+            <div class="phone-screen">
+              <div class="pstatus"><span class="time">9:41</span><span class="icons">🔋</span></div>
+              <div class="phdr" style="text-align:center; padding:10px 14px 6px;">
+                <div style="font-size:1.4rem; margin-bottom:4px;">⭐</div>
+                <div class="ptitle">How was your experience?</div>
+                <div class="psub">INF-042 · HP Pavilion 15</div>
+              </div>
+              <div class="pscroll" style="padding:6px 10px;">
+                <div style="text-align:center; margin-bottom:10px;">
+                  <div class="stars" style="justify-content:center; font-size:1.5rem; gap:6px;">
+                    <span class="star-filled">★</span>
+                    <span class="star-filled">★</span>
+                    <span class="star-filled">★</span>
+                    <span class="star-filled">★</span>
+                    <span class="star-empty">★</span>
+                  </div>
+                  <div style="font-size:.6rem; color:var(--muted); margin-top:3px;">Tap to rate</div>
+                </div>
+                <div style="font-size:.6rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px;">What went well?</div>
+                <div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px;">
+                  <div style="background:var(--green-50); border:1px solid var(--green-200); border-radius:999px; padding:.18rem .55rem; font-size:.58rem; font-weight:700; color:var(--green-700);">✓ Fast turnaround</div>
+                  <div style="background:var(--green-50); border:1px solid var(--green-200); border-radius:999px; padding:.18rem .55rem; font-size:.58rem; font-weight:700; color:var(--green-700);">✓ Good communication</div>
+                  <div style="background:#fff; border:1px solid var(--line); border-radius:999px; padding:.18rem .55rem; font-size:.58rem; color:var(--muted);">Fair pricing</div>
+                  <div style="background:#fff; border:1px solid var(--line); border-radius:999px; padding:.18rem .55rem; font-size:.58rem; color:var(--muted);">Friendly staff</div>
+                </div>
+                <div style="font-size:.6rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:3px;">Add a comment (optional)</div>
+                <div style="background:var(--sand); border:1px solid var(--line); border-radius:9px; padding:7px 9px; font-size:.62rem; color:var(--muted); min-height:44px; margin-bottom:8px;">Battery replaced perfectly. Very happy…</div>
+                <div class="pbtn" style="margin:0;">Submit Feedback ✓</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-label">Feedback</div>
+        <div class="screen-sub">Unlocks after Delivered status</div>
+      </div>
+
+      <div style="flex:1; display:flex; flex-direction:column; gap:.9rem; align-self:center;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:.8rem;">
+          <div class="feat-card">
+            <h3>Star Rating</h3>
+            <p>1–5 star tap rating. Required field. Displayed to the service centre admin in their dashboard.</p>
+          </div>
+          <div class="feat-card">
+            <h3>Quick-select tags</h3>
+            <p>Pre-set positive tags (Fast turnaround, Good communication, etc.) — one tap, no typing. Multiple can be selected.</p>
+          </div>
+          <div class="feat-card">
+            <h3>Free-text comment</h3>
+            <p>Optional comment field. Allows the customer to share specific feedback in their own words.</p>
+          </div>
+          <div class="feat-card">
+            <h3>Locked until delivery</h3>
+            <p>Feedback option only appears once the job reaches Delivered status — prevents premature or irrelevant reviews.</p>
+          </div>
+        </div>
+        <div class="callout">
+          <p>Feedback is tied to the job and visible to the admin in their Reports module. Helps identify top-performing technicians and recurring issues.</p>
+        </div>
+      </div>
+    </div>
+    <div class="footnote"><span>ServiceDesk · Feedback</span><span>Post-delivery only · Tied to job + technician</span></div>
+  </section>
+
+  <!-- ═══ SLIDE 8: GRIEVANCE ═══ -->
+  <section class="slide sand">
+    <div class="eyebrow">Screen 6 · Grievance</div>
+    <h2 style="margin-bottom:.7rem;">Raise a complaint — tracked to resolution.</h2>
+    <div style="display:flex; gap:2.5rem; align-items:flex-start;">
+
+      <div>
+        <div class="phone">
+          <div class="phone-inner">
+            <div class="phone-notch"><div class="phone-notch-pill"></div></div>
+            <div class="phone-screen">
+              <div class="pstatus"><span class="time">9:41</span><span class="icons">🔋</span></div>
+              <div class="phdr">
+                <div class="ptitle">Raise a Grievance</div>
+                <div class="psub">We'll respond within 24 hours</div>
+              </div>
+              <div class="pscroll" style="padding:4px 0; overflow-y:auto;">
+                <div class="pinput-label">Select Job</div>
+                <div class="pinput" style="border-color:var(--green-400); background:var(--green-50);">INF-042 — HP Pavilion 15 ▾</div>
+                <div class="pinput-label">Issue Type</div>
+                <div class="pinput">Repair quality ▾</div>
+                <div class="pinput-label">Describe the issue</div>
+                <div style="background:var(--sand); border:1px solid var(--line); border-radius:9px; padding:7px 9px; font-size:.62rem; color:var(--charcoal); min-height:54px; margin:0 10px 6px; line-height:1.4;">The battery drains too fast after replacement. Doesn't seem like OEM part…</div>
+                <div class="pbtn">Submit Grievance</div>
+
+                <div style="padding:6px 10px 2px; font-size:.58rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-top:6px;">Past Grievances</div>
+                <div class="pgrev">
+                  <div class="gt">⚠️ GRV-003 · Repair quality</div>
+                  <div class="gs">Battery drains too fast after replacement</div>
+                  <div class="gbadge">Open · Submitted Aug 17</div>
+                </div>
+                <div class="pgrev" style="background:var(--good-50); border-color:#a7f3d0; margin-top:5px;">
+                  <div class="gt" style="color:var(--good);">✅ GRV-001 · Delay complaint</div>
+                  <div class="gs">Resolved in 1 day — manager called back</div>
+                  <div style="display:inline-flex; border-radius:999px; padding:.1rem .45rem; font-size:.52rem; font-weight:700; background:var(--good-50); color:var(--good); border:1px solid #6ee7b7; margin-top:4px;">Resolved</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-label">Grievance</div>
+        <div class="screen-sub">Linked to job, tracked status</div>
+      </div>
+
+      <div style="flex:1; display:flex; flex-direction:column; gap:.9rem; align-self:center;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:.8rem;">
+          <div class="feat-card">
+            <h3>Job-linked complaint</h3>
+            <p>Customer selects which job the grievance is about. Ensures the service centre team has full context immediately.</p>
+          </div>
+          <div class="feat-card">
+            <h3>Issue categories</h3>
+            <p>Repair quality · Delay · Parts concern · Billing dispute · Staff behaviour · Other — pre-set dropdown for structured routing.</p>
+          </div>
+          <div class="feat-card">
+            <h3>Grievance tracking</h3>
+            <p>Each grievance gets a unique GRV number. Customer sees status: Open → In Review → Resolved. Full history in-app.</p>
+          </div>
+          <div class="feat-card">
+            <h3>24-hour SLA</h3>
+            <p>Service centre admin is alerted immediately. Committed response within 24 hours — shown to the customer on submission.</p>
+          </div>
+        </div>
+        <div class="callout">
+          <p>Grievances appear in the service centre admin dashboard as a separate queue — separate from job notes, ensuring complaints are never missed.</p>
+        </div>
+      </div>
+    </div>
+    <div class="footnote"><span>ServiceDesk · Grievance</span><span>GRV number · Status tracking · Admin dashboard queue</span></div>
+  </section>
+
+  <!-- ═══ SLIDE 9: PROFILE ═══ -->
+  <section class="slide">
+    <div class="eyebrow">Screen 7 · Profile</div>
+    <h2 style="margin-bottom:.7rem;">Customer info, history, preferences.</h2>
+    <div style="display:flex; gap:2.5rem; align-items:flex-start;">
+
+      <div>
+        <div class="phone">
+          <div class="phone-inner">
+            <div class="phone-notch"><div class="phone-notch-pill"></div></div>
+            <div class="phone-screen">
+              <div class="pstatus"><span class="time">9:41</span><span class="icons">🔋</span></div>
+              <div style="background:var(--green-800); padding:12px 14px 14px; flex:none;">
+                <div style="width:38px;height:38px;border-radius:50%;background:var(--green-600);display:grid;place-items:center;font-size:1rem;font-weight:800;color:#fff;margin-bottom:6px;">R</div>
+                <div style="font-size:.82rem; font-weight:800; color:#fff;">Rahul Sharma</div>
+                <div style="font-size:.6rem; color:var(--green-200);">+91 98765 43210</div>
+                <div style="font-size:.58rem; color:var(--green-200); margin-top:2px;">Customer since Jan 2026</div>
+              </div>
+              <div class="pscroll" style="padding:6px 0; overflow-y:auto;">
+                <div style="margin:0 10px 6px; background:var(--sand); border-radius:10px; padding:8px 10px;">
+                  <div style="font-size:.58rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:5px;">Repair Summary</div>
+                  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; text-align:center;">
+                    <div><div style="font-size:.95rem; font-weight:900; color:var(--green-800);">3</div><div style="font-size:.52rem; color:var(--muted);">Total jobs</div></div>
+                    <div><div style="font-size:.95rem; font-weight:900; color:var(--good);">2</div><div style="font-size:.52rem; color:var(--muted);">Completed</div></div>
+                    <div><div style="font-size:.95rem; font-weight:900; color:var(--green-700);">1</div><div style="font-size:.52rem; color:var(--muted);">Active</div></div>
+                  </div>
+                </div>
+                <div style="margin:0 10px; display:flex; flex-direction:column; gap:3px;">
+                  <div style="display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid var(--line); font-size:.68rem; color:var(--charcoal);">📋 <span>All My Jobs</span><span style="margin-left:auto; color:var(--muted);">›</span></div>
+                  <div style="display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid var(--line); font-size:.68rem; color:var(--charcoal);">🔔 <span>Notification Preferences</span><span style="margin-left:auto; color:var(--muted);">›</span></div>
+                  <div style="display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid var(--line); font-size:.68rem; color:var(--charcoal);">📱 <span>My Devices</span><span style="margin-left:auto; color:var(--muted);">›</span></div>
+                  <div style="display:flex; align-items:center; gap:8px; padding:7px 0; font-size:.68rem; color:var(--bad);">🚪 <span>Sign Out</span></div>
+                </div>
+              </div>
+              <div class="pnav">
+                <div class="pnav-item"><span class="ico">🏠</span>Home</div>
+                <div class="pnav-item"><span class="ico">🔔</span>Alerts</div>
+                <div class="pnav-item"><span class="ico">⚠️</span>Grievance</div>
+                <div class="pnav-item active"><span class="ico">👤</span>Profile</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-label">Profile</div>
+        <div class="screen-sub">History, devices, preferences</div>
+      </div>
+
+      <div style="flex:1; display:flex; flex-direction:column; gap:.9rem; align-self:center;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:.8rem;">
+          <div class="feat-card">
+            <h3>Repair summary stats</h3>
+            <p>Total, completed, and active job counts at a glance. Quick health check of the customer's relationship with the shop.</p>
+          </div>
+          <div class="feat-card">
+            <h3>All My Jobs</h3>
+            <p>Full job history across all branches and all devices — same as the Home screen but unfiltered and sortable.</p>
+          </div>
+          <div class="feat-card">
+            <h3>My Devices</h3>
+            <p>All devices the customer has ever brought in — make, model, IMEI/serial. Quickly identify the device when creating a new job.</p>
+          </div>
+          <div class="feat-card">
+            <h3>Notification preferences</h3>
+            <p>Toggle WhatsApp vs. SMS per event type. Customer controls what they receive without involving the service centre.</p>
+          </div>
+        </div>
+        <div class="callout-green">
+          <p>Profile data syncs with the service centre's customer record — if the customer updates their email, it reflects in the admin CRM automatically.</p>
+        </div>
+      </div>
+    </div>
+    <div class="footnote"><span>ServiceDesk · Profile</span><span>Synced with service centre CRM · 4-tab bottom nav</span></div>
+  </section>
+
+  <!-- ═══ SLIDE 10: CLOSING ═══ -->
+  <section class="slide hero">
+    <div style="margin:auto 0; position:relative; z-index:1;">
+      <div class="eyebrow">Next steps</div>
+      <h1>Build it on top of<br/><span style="color:var(--terra);">what's already live.</span></h1>
+      <p class="tag">The service centre platform is fully built. The customer app shares the same Supabase backend — screens can be built as new routes on the existing Next.js app or as a separate PWA pointing to the same API.</p>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1.8rem; max-width:700px;">
+        <div style="background:rgba(255,255,255,.7); border:1px solid var(--line); border-radius:14px; padding:1rem 1.1rem;">
+          <div style="font-size:.78rem; font-weight:800; color:var(--green-800); text-transform:uppercase; letter-spacing:.06em; margin-bottom:.5rem;">Option A — Same App</div>
+          <ul class="feat" style="margin:0;">
+            <li style="font-size:.85rem;">New /customer/* routes in existing Next.js</li>
+            <li style="font-size:.85rem;">Same Supabase DB, new RLS policies for customers</li>
+            <li style="font-size:.85rem;">Single deployment on Vercel</li>
+          </ul>
+        </div>
+        <div style="background:rgba(255,255,255,.7); border:1px solid var(--line); border-radius:14px; padding:1rem 1.1rem;">
+          <div style="font-size:.78rem; font-weight:800; color:var(--green-800); text-transform:uppercase; letter-spacing:.06em; margin-bottom:.5rem;">Option B — Separate PWA</div>
+          <ul class="feat" style="margin:0;">
+            <li style="font-size:.85rem;">Customer-only app at customer.servicedesk.in</li>
+            <li style="font-size:.85rem;">Clean separation of concerns</li>
+            <li style="font-size:.85rem;">Easier to brand per organisation</li>
+          </ul>
+        </div>
+      </div>
+      <div class="badge-row" style="margin-top:1.5rem;">
+        <span class="pill">7 screens designed</span>
+        <span class="pill">Login · Home · Detail · Alerts · Feedback · Grievance · Profile</span>
+      </div>
+    </div>
+    <div class="footnote">
+      <span>ServiceDesk · Customer App Flow</span>
+      <span>Aashish · aashish@perfectskills.in · +91-8530940761</span>
+    </div>
+  </section>
+
+</div><!-- /deck -->
+
+<div class="counter" id="counter">1 / 10</div>
+<div class="nav">
+  <button id="prev" title="Previous">←</button>
+  <button id="next" title="Next">→</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total  = slides.length;
+  let cur = 0;
+
+  function show(n) {
+    slides[cur].classList.remove('active');
+    cur = (n + total) % total;
+    slides[cur].classList.add('active');
+    document.getElementById('counter').textContent = (cur + 1) + ' / ' + total;
+    document.getElementById('progress').style.width = ((cur + 1) / total * 100) + '%';
+  }
+
+  document.getElementById('next').onclick = () => show(cur + 1);
+  document.getElementById('prev').onclick = () => show(cur - 1);
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); show(cur + 1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    { e.preventDefault(); show(cur - 1); }
+  });
+
+  let tx = 0;
+  document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend',   e => {
+    const dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 50) show(dx < 0 ? cur + 1 : cur - 1);
+  }, { passive: true });
+
+  document.getElementById('progress').style.width = (1 / total * 100) + '%';
+</script>
+</body>
+</html>

@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ServiceDesk — Platform Awareness Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800;9..40,900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-900:#061f18; --green-800:#0d3b2e; --green-700:#145040; --green-600:#1c6852;
+    --green-400:#3da07f; --green-200:#a8dccb; --green-100:#d6f0e7; --green-50:#edf8f3;
+    --terra:#c85b2a; --terra-500:#d97445; --terra-700:#b83f1c; --terra-100:#fce8db; --terra-50:#fdf4ef;
+    --sand:#f6f4f0; --sand-2:#efece5; --ink:#1a1714; --charcoal:#2e2a25; --muted:#6b655c; --line:#e3ded4; --white:#fff;
+    --good:#2a7a4b; --good-50:#e8f5ee; --warn:#b87c0a; --warn-50:#fef6e0; --bad:#b82a2a;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { height:100%; }
+  body {
+    font-family:"DM Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    color:var(--charcoal); background:#e7e3da;
+    -webkit-font-smoothing:antialiased; letter-spacing:-.005em;
+  }
+  .deck { height:100vh; overflow:hidden; }
+  .slide {
+    display:none; height:100vh; width:100vw; padding:6vh 7vw;
+    flex-direction:column; justify-content:center; position:relative;
+    background:var(--white); overflow:hidden;
+  }
+  .slide.active { display:flex; }
+  .slide.sand { background:var(--sand); }
+  .hero {
+    background:
+      radial-gradient(120% 80% at 78% 18%, var(--green-50) 0%, rgba(237,248,243,0) 55%),
+      radial-gradient(90% 70% at 12% 92%, var(--terra-50) 0%, rgba(253,244,239,0) 50%),
+      var(--white);
+  }
+
+  .eyebrow { text-transform:uppercase; letter-spacing:.18em; font-size:.78rem; font-weight:700; color:var(--terra); margin-bottom:1.1rem; }
+  h1 { font-size:4.2rem; line-height:1.04; font-weight:800; color:var(--green-800); letter-spacing:-.03em; }
+  h2 { font-size:2.7rem; line-height:1.08; font-weight:800; color:var(--green-800); letter-spacing:-.02em; margin-bottom:1.4rem; }
+  h3 { font-size:1.2rem; font-weight:700; color:var(--green-700); letter-spacing:-.01em; }
+  p  { font-size:1.22rem; line-height:1.6; color:var(--charcoal); max-width:62ch; }
+  p.lead { font-size:1.5rem; line-height:1.5; color:var(--muted); max-width:54ch; }
+  .hero h1 { font-size:4.7rem; }
+  .hero .tag { font-size:1.45rem; color:var(--muted); margin-top:1.4rem; max-width:50ch; line-height:1.45; }
+  .muted  { color:var(--muted); }
+  .accent { color:var(--terra); }
+  .grn    { color:var(--green-700); }
+
+  .cols   { display:grid; grid-template-columns:1.05fr .95fr; gap:3rem; align-items:center; }
+  .cols-top { align-items:start; }
+  .cols-2 { display:grid; grid-template-columns:1fr 1fr; gap:1.3rem; margin-top:.4rem; }
+  .cols-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:1.3rem; margin-top:.4rem; }
+  .cols-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:1.2rem; margin-top:.4rem; }
+
+  .card {
+    background:var(--white); border:1px solid var(--line); border-radius:16px; padding:1.5rem 1.45rem;
+    box-shadow:0 1px 2px rgba(0,0,0,.03);
+  }
+  .slide.sand .card { background:#fff; }
+  .card .ico { width:44px;height:44px;border-radius:11px;background:var(--green-50);color:var(--green-700);display:grid;place-items:center;font-size:1.35rem;margin-bottom:.85rem; }
+  .card h3 { margin-bottom:.4rem; }
+  .card p  { font-size:1.02rem; color:var(--muted); line-height:1.5; }
+
+  .pill    { display:inline-flex; align-items:center; gap:.5rem; background:var(--green-50); color:var(--green-700); border:1px solid var(--green-100); border-radius:999px; padding:.4rem 1rem; font-size:.95rem; font-weight:600; }
+  .pill-sm { font-size:.74rem; padding:.22rem .65rem; }
+  .badge-row { display:flex; flex-wrap:wrap; gap:.7rem; margin-top:1.6rem; }
+
+  .step { display:flex; gap:1.1rem; align-items:flex-start; margin-bottom:1.1rem; }
+  .step .num { flex:none; width:46px;height:46px;border-radius:12px; background:var(--green-800); color:#fff; display:grid; place-items:center; font-weight:800; font-size:1.2rem; }
+  .step h3 { margin-bottom:.12rem; }
+  .step p  { font-size:1.05rem; color:var(--muted); }
+
+  ul.feat { list-style:none; margin-top:.4rem; }
+  ul.feat li { font-size:1.02rem; padding:.42rem 0 .42rem 2rem; position:relative; color:var(--charcoal); }
+  ul.feat li::before { content:"✓"; position:absolute; left:0; color:var(--green-400); font-weight:800; }
+  ul.cross { list-style:none; }
+  ul.cross li { font-size:1.02rem; padding:.42rem 0 .42rem 1.8rem; position:relative; color:var(--muted); }
+  ul.cross li::before { content:"✕"; position:absolute; left:0; color:var(--bad); font-weight:800; }
+
+  .stat { background:#fff; border:1px solid var(--line); border-radius:18px; padding:1.6rem 1.5rem; }
+  .stat .big  { font-size:3.4rem; font-weight:900; color:var(--green-800); line-height:1; letter-spacing:-.04em; }
+  .stat .big .unit { font-size:1.6rem; font-weight:800; color:var(--terra); }
+  .stat .lbl  { margin-top:.6rem; font-size:1rem; color:var(--muted); line-height:1.4; }
+  .stat.feature { background:var(--green-800); border-color:var(--green-800); }
+  .stat.feature .big, .stat.feature .lbl { color:#fff; }
+  .stat.feature .big .unit { color:var(--terra-100); }
+
+  .callout { border-left:4px solid var(--terra); background:var(--terra-50); border-radius:0 14px 14px 0; padding:1.1rem 1.3rem; }
+  .callout p { font-size:1.05rem; color:var(--green-800); font-weight:600; line-height:1.55; margin:0; max-width:none; }
+
+  .gap-card  { display:flex; gap:1rem; align-items:flex-start; padding:1rem 1.1rem; background:#fff; border:1px solid var(--line); border-radius:14px; }
+  .gap-n     { flex:none; width:36px; height:36px; border-radius:50%; background:var(--green-800); color:#fff; font-weight:800; font-size:1rem; display:grid; place-items:center; }
+  .gap-title { font-size:1.02rem; font-weight:700; color:var(--green-800); margin-bottom:.25rem; }
+  .gap-desc  { font-size:.9rem; color:var(--muted); line-height:1.45; }
+
+  .phase-blk { border-radius:14px; overflow:hidden; margin-bottom:1rem; }
+  .phase-hd  { display:flex; align-items:center; gap:1rem; background:var(--green-800); padding:.9rem 1.2rem; }
+  .phase-hd .num  { font-size:1.7rem; font-weight:900; color:rgba(255,255,255,.25); min-width:44px; }
+  .phase-hd .ttl  { font-size:1.1rem; font-weight:700; color:#fff; }
+  .phase-hd .sub  { font-size:.82rem; color:var(--green-200); margin-top:.15rem; }
+  .phase-body { padding:.8rem 1.2rem; background:var(--sand); }
+
+  /* Status flow pills */
+  .status-flow { display:flex; align-items:center; flex-wrap:wrap; gap:.4rem; margin-top:.8rem; }
+  .status-pill { display:inline-flex; align-items:center; gap:.3rem; border-radius:999px; padding:.32rem .85rem; font-size:.82rem; font-weight:700; border:1px solid; white-space:nowrap; }
+  .sp-grey   { background:#f3f4f6; color:#374151; border-color:#d1d5db; }
+  .sp-blue   { background:#eff6ff; color:#1d4ed8; border-color:#bfdbfe; }
+  .sp-amber  { background:#fffbeb; color:#92400e; border-color:#fcd34d; }
+  .sp-orange { background:#fff7ed; color:#c2410c; border-color:#fdba74; }
+  .sp-purple { background:#f5f3ff; color:#6d28d9; border-color:#c4b5fd; }
+  .sp-teal   { background:#f0fdf4; color:#065f46; border-color:#6ee7b7; }
+  .sp-green  { background:#dcfce7; color:#166534; border-color:#86efac; }
+  .sp-done   { background:var(--green-800); color:#fff; border-color:var(--green-800); }
+  .flow-arrow { color:var(--muted); font-size:.9rem; }
+
+  /* Role badge */
+  .role-badge { display:inline-block; border-radius:999px; padding:.25rem .75rem; font-size:.78rem; font-weight:700; }
+  .rb-admin   { background:#fef2f2; color:#991b1b; }
+  .rb-mgr     { background:#eff6ff; color:#1d4ed8; }
+  .rb-tech    { background:#f0fdf4; color:#166534; }
+  .rb-fd      { background:#fefce8; color:#a16207; }
+
+  /* Lifecycle timeline */
+  .lc-row { display:flex; gap:0; margin-top:.9rem; }
+  .lc-step { flex:1; position:relative; }
+  .lc-step .lc-dot { width:32px; height:32px; border-radius:50%; background:var(--green-700); color:#fff; display:grid; place-items:center; font-size:.78rem; font-weight:800; margin:0 auto .5rem; position:relative; z-index:2; }
+  .lc-step::before { content:''; position:absolute; top:16px; left:0; right:0; height:2px; background:var(--line); z-index:1; }
+  .lc-step:first-child::before { left:50%; }
+  .lc-step:last-child::before  { right:50%; }
+  .lc-step .lc-label { text-align:center; font-size:.78rem; font-weight:700; color:var(--green-800); line-height:1.3; }
+  .lc-step .lc-sub   { text-align:center; font-size:.68rem; color:var(--muted); margin-top:.2rem; line-height:1.3; }
+
+  .footnote { position:absolute; bottom:3.2vh; left:7vw; right:7vw; font-size:.78rem; color:var(--muted); display:flex; justify-content:space-between; align-items:center; }
+  .progress  { position:fixed; top:0; left:0; height:3px; background:var(--green-700); z-index:60; transition:width .25s ease; }
+  .counter   { position:fixed; bottom:20px; left:24px; color:var(--muted); font-size:.82rem; z-index:50; font-family:"DM Mono",monospace; }
+  .nav       { position:fixed; bottom:16px; right:22px; display:flex; gap:8px; z-index:50; }
+  .nav button { background:#fff; border:1px solid var(--line); color:var(--green-800); border-radius:9px; width:40px;height:40px; font-size:1.2rem; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+  .nav button:hover { background:var(--green-50); }
+
+  .logo { display:inline-flex; align-items:center; gap:.55rem; font-weight:800; font-size:1.25rem; color:var(--green-800); }
+
+  @media print {
+    @page { size:1280px 720px; margin:0; }
+    body { background:#fff; }
+    .deck { height:auto; overflow:visible; }
+    .slide { display:flex !important; page-break-after:always; height:100vh; }
+    .nav,.counter,.progress { display:none; }
+  }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="deck">
+
+  <!-- ═══════════════════════ SLIDE 1: COVER ═══════════════════════ -->
+  <section class="slide hero active">
+    <div style="margin:auto 0; position:relative; z-index:1;">
+      <div class="eyebrow">Platform Overview · August 2026</div>
+      <h1>ServiceDesk —<br/><span style="color:var(--terra);">Repair Shop OS</span></h1>
+      <p class="tag">A multi-tenant SaaS platform built for laptop and device repair chains. One system for every branch, every technician, every job.</p>
+      <div class="badge-row">
+        <span class="pill">🏢 Multi-branch Ready</span>
+        <span class="pill">📱 PWA · Works on Any Device</span>
+        <span class="pill">💬 WhatsApp Alerts Built In</span>
+      </div>
+    </div>
+    <div class="footnote">
+      <span>ServiceDesk · Platform Awareness Deck</span>
+      <span>Aashish · aashish@perfectskills.in · +91-8530940761</span>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ SLIDE 2: THE PROBLEM ═══════════════════════ -->
+  <section class="slide sand">
+    <div class="eyebrow">The problem</div>
+    <h2>How repair shops run today.</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:.8rem;">
+      <div class="gap-card">
+        <div class="gap-n">1</div>
+        <div>
+          <div class="gap-title">Jobs tracked on paper or WhatsApp</div>
+          <div class="gap-desc">No audit trail, no status history, no searchable record. A job lost in a chat thread is a customer lost forever.</div>
+        </div>
+      </div>
+      <div class="gap-card">
+        <div class="gap-n">2</div>
+        <div>
+          <div class="gap-title">Customer calls for every status update</div>
+          <div class="gap-desc">Front desk fields 30+ inbound calls a day answering "is my laptop ready?" — all avoidable with a self-service portal.</div>
+        </div>
+      </div>
+      <div class="gap-card">
+        <div class="gap-n">3</div>
+        <div>
+          <div class="gap-title">No branch-level visibility for managers</div>
+          <div class="gap-desc">Multi-branch owners have zero consolidated view. Each branch is a separate spreadsheet or WhatsApp group.</div>
+        </div>
+      </div>
+      <div class="gap-card">
+        <div class="gap-n">4</div>
+        <div>
+          <div class="gap-title">Payments tracked manually, often forgotten</div>
+          <div class="gap-desc">Advance collections and final payments are logged in notebooks. Discrepancies only surface at month-end reconciliation.</div>
+        </div>
+      </div>
+      <div class="gap-card" style="grid-column:1/-1;">
+        <div class="gap-n">5</div>
+        <div>
+          <div class="gap-title">No role-based access — everyone sees everything</div>
+          <div class="gap-desc">Technicians see revenue figures. Front desk can edit customer records. No accountability, no separation of duties.</div>
+        </div>
+      </div>
+    </div>
+    <div class="footnote"><span>ServiceDesk</span><span>Built for multi-branch repair chains</span></div>
+  </section>
+
+  <!-- ═══════════════════════ SLIDE 3: WHAT IS SERVICEDESK ═══════════════════════ -->
+  <section class="slide">
+    <div class="eyebrow">The platform</div>
+    <h2>One platform. Every branch. Every role.</h2>
+    <div class="cols cols-top">
+      <div>
+        <p>ServiceDesk is a cloud-based job management platform purpose-built for laptop and device repair shops. It gives every role — admin, manager, technician, and front desk — exactly the tools they need, nothing more.</p>
+        <div class="callout" style="margin-top:1.5rem;">
+          <p>Multi-tenant from the ground up — one deployment serves hundreds of service centres. Each organisation's data is fully isolated with row-level security at the database layer.</p>
+        </div>
+        <div class="badge-row" style="margin-top:1.2rem;">
+          <span class="pill pill-sm">Next.js PWA</span>
+          <span class="pill pill-sm">Supabase</span>
+          <span class="pill pill-sm">Real-time</span>
+          <span class="pill pill-sm">WhatsApp Alerts</span>
+          <span class="pill pill-sm">Offline-ready</span>
+        </div>
+      </div>
+      <div>
+        <div class="cols-2" style="margin-top:0;">
+          <div class="stat">
+            <div class="big">8<span class="unit">+</span></div>
+            <div class="lbl">Job lifecycle statuses — received to delivered</div>
+          </div>
+          <div class="stat feature">
+            <div class="big">4</div>
+            <div class="lbl">Role-based access levels with branch-scoped permissions</div>
+          </div>
+          <div class="stat">
+            <div class="big">∞</div>
+            <div class="lbl">Branches per organisation — no artificial cap</div>
+          </div>
+          <div class="stat">
+            <div class="big">8</div>
+            <div class="lbl">Fully-built modules live in production today</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footnote"><span>ServiceDesk · Platform Overview</span><span>Live at servicedesk-app.vercel.app</span></div>
+  </section>
+
+  <!-- ═══════════════════════ SLIDE 4: HOW IT WORKS ═══════════════════════ -->
+  <section class="slide sand">
+    <div class="eyebrow">How it works</div>
+    <h2>From walk-in to collection — fully tracked.</h2>
+    <div class="cols cols-top" style="gap:2.5rem;">
+      <div>
+        <div class="step">
+          <div class="num">1</div>
+          <div><h3>Customer walks in · Job is created</h3><p>Front desk registers customer, logs the device, describes the issue, sets expected delivery. A unique job number is auto-generated and a WhatsApp confirmation is sent.</p></div>
+        </div>
+        <div class="step">
+          <div class="num">2</div>
+          <div><h3>Technician inspects and sends estimate</h3><p>The assigned technician adds parts, labour, and diagnostic notes. An estimate is sent to the customer via WhatsApp for approval.</p></div>
+        </div>
+        <div class="step">
+          <div class="num">3</div>
+          <div><h3>Customer approves · Work begins</h3><p>Once approved, the job moves through service. Parts are logged against the job. Every status change is time-stamped and attributed to a staff member.</p></div>
+        </div>
+      </div>
+      <div>
+        <div class="step">
+          <div class="num">4</div>
+          <div><h3>Customer checks status · Customer Portal</h3><p>The customer gets a secure portal link — no login required. They see real-time job status, technician notes, and parts used, on their phone.</p></div>
+        </div>
+        <div class="step">
+          <div class="num">5</div>
+          <div><h3>Device is ready · WhatsApp alert fires</h3><p>When the job moves to "Ready for Collection", an automated WhatsApp message is sent. Front desk records final payment and hands over the device.</p></div>
+        </div>
+        <div class="step">
+          <div class="num">6</div>
+          <div><h3>Delivered · Job closes</h3><p>Job is marked delivered. Payment is reconciled. The full job history — notes, parts, status log, payments — is preserved indefinitely.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="footnote"><span>ServiceDesk · How it works</span><span>Full audit trail at every step</span></div>
+  </section>
+
+  <!-- ═══════════════════════ SLIDE 5: MODULES AT A GLANCE ═══════════════════════ -->
+  <section class="slide">
+    <div class="eyebrow">Platform modules</div>
+    <h2>Eight modules. One coherent system.</h2>
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-top:.5rem;">
+      <div class="card" style="border-top:4px solid var(--green-700); padding:1.1rem 1.2rem;">
+        <div style="font-size:1.6rem; margin-bottom:.5rem;">🔧</div>
+        <h3 style="font-size:1rem;">Jobs</h3>
+        <p style="font-size:.88rem;">Full job lifecycle — intake, status flow, notes, parts, invoice, payments.</p>
+      </div>
+      <div class="card" style="border-top:4px solid var(--green-700); padding:1.1rem 1.2rem;">
+        <div style="font-size:1.6rem; margin-bottom:.5rem;">👥</div>
+        <h3 style="font-size:1rem;">Customers</h3>
+        <p style="font-size:.88rem;">Customer profiles, device history, job history per customer.</p>
+      </div>
+      <div class="card" style="border-top:4px solid var(--green-700); padding:1.1rem 1.2rem;">
+        <div style="font-size:1.6rem; margin-bottom:.5rem;">📊</div>
+        <h3 style="font-size:1rem;">Reports</h3>
+        <p style="font-size:.88rem;">Branch-level and org-wide stats: jobs by status, revenue, technician performance.</p>
+      </div>
+      <div class="card" style="border-top:4px solid var(--green-700); padding:1.1rem 1.2rem;">
+        <div style="font-size:1.6rem; margin-bottom:.5rem;">🏢</div>
+        <h3 style="font-size:1rem;">Branches</h3>
+        <p style="font-size:.88rem;">Manage multiple locations — each with its own prefix, hours, and staff.</p>
+      </div>
+      <div class="card" style="border-top:4px solid var(--terra); padding:1.1rem 1.2rem;">
+        <div style="font-size:1.6rem; margin-bottom:.5rem;">⚙️</div>
+        <h3 style="font-size:1rem;">Settings</h3>
+        <p style="font-size:.88rem;">Org profile, branding, notification triggers, custom device fields.</p>
+      </div>
+      <div class="card" style="border-top:4px solid var(--terra); padding:1.1rem 1.2rem;">
+        <div style="font-size:1.6rem; margin-bottom:.5rem;">🌐</div>
+        <h3 style="font-size:1rem;">Customer Portal</h3>
+        <p style="font-size:.88rem;">Token-secured, no-login portal for customers to check job status on any device.</p>
+      </div>
+      <div class="card" style="border-top:4px solid var(--terra); padding:1.1rem 1.2rem;">
+        <div style="font-size:1.6rem; margin-bottom:.5rem;">💬</div>
+        <h3 style="font-size:1rem;">Notifications</h3>
+        <p style="font-size:.88rem;">WhatsApp / SMS alerts triggered automatically at key job milestones.</p>
+      </div>
+      <div class="card" style="border-top:4px solid var(--terra); padding:1.1rem 1.2rem;">
+        <div style="font-size:1.6rem; margin-bottom:.5rem;">🛡️</div>
+        <h3 style="font-size:1rem;">Platform Admin</h3>
+        <p style="font-size:.88rem;">Onboard new service chains, manage orgs, impersonate for support.</p>
+      </div>
+    </div>
+    <div class="footnote"><span>All 8 modules live in production</span><span>servicedesk-app.vercel.app</span></div>
+  </section>
+
+  <!-- ═══════════════════════ SLIDE 6: JOBS MODULE ═══════════════════════ -->
+  <section class="slide sand">
+    <div class="eyebrow">Module · Jobs</div>
+    <h2 style="margin-bottom:.8rem;">The core. Every repair, fully tracked.</h2>
+    <div class="cols cols-top" style="gap:2.5rem;">
+      <div>
+        <div class="phase-blk">
+          <div class="phase-hd">
+            <div class="num">🔧</div>
+            <div><div class="ttl">Job Board &amp; Detail View</div><div class="sub">Everything a technician or manager needs on one screen</div></div>
+          </div>
+          <div class="phase-body">
+            <ul class="feat">
+              <li>Filterable job board — by branch, status, technician, or search by job number</li>
+              <li>Full job detail: customer info, device, issue description, accessories received</li>
+              <li>Status transition log — who changed what and when</li>
+              <li>Technician notes panel — internal comms visible to all staff</li>
+              <li>Parts &amp; labour items — with quantity, cost, and total auto-calculated</li>
+              <li>Invoice preview and payment recording (advance + final)</li>
+              <li>Estimated delivery date visible on every job card</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:.6rem; font-size:1rem; color:var(--muted); text-transform:uppercase; letter-spacing:.06em;">Job Status Flow</h3>
+        <div class="status-flow">
+          <span class="status-pill sp-grey">Received</span>
+          <span class="flow-arrow">→</span>
+          <span class="status-pill sp-blue">Inspection</span>
+          <span class="flow-arrow">→</span>
+          <span class="status-pill sp-amber">Estimate Sent</span>
+          <span class="flow-arrow">→</span>
+          <span class="status-pill sp-orange">Approved</span>
+          <span class="flow-arrow">→</span>
+          <span class="status-pill sp-purple">Parts</span>
+          <span class="flow-arrow">→</span>
+          <span class="status-pill sp-teal">In Service</span>
+          <span class="flow-arrow">→</span>
+          <span class="status-pill sp-green">Ready</span>
+          <span class="flow-arrow">→</span>
+          <span class="status-pill sp-done">Delivered ✓</span>
+        </div>
+        <div style="margin-top:1.3rem;">
+          <div class="callout">
+            <p>Every status transition triggers a WhatsApp notification to the customer and logs the change with the staff member's name and timestamp.</p>
+          </div>
+        </div>
+        <div style="margin-top:1.2rem;">
+          <h3 style="margin-bottom:.5rem; font-size:1rem;">Role access on Jobs</h3>
+          <div style="display:flex; flex-wrap:wrap; gap:.5rem; font-size:.85rem;">
+            <span><span class="role-badge rb-admin">Admin</span> Full access — all branches</span>
+            <span><span class="role-badge rb-mgr">Manager</span> Full access — assigned branches</span>
+            <span><span class="role-badge rb-tech">Technician</span> Own jobs — notes + parts</span>
+            <span><span class="role-badge rb-fd">Front Desk</span> Create jobs, record payments</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footnote"><span>Module: Jobs</span><span>8 statuses · Full audit trail</span></div>
+  </section>
+
+  <!-- ═══════════════════════ SLIDE 7: CUSTOMERS + ASSETS ═══════════════════════ -->
+  <section class="slide">
+    <div class="eyebrow">Modules · Customers &amp; Assets</div>
+    <h2>Know every customer. Every device.</h2>
+    <div class="cols cols-top" style="gap:2.5rem;">
+      <div>
+        <div class="phase-blk">
+          <div class="phase-hd">
+            <div class="num">👥</div>
+            <div><div class="ttl">Customer Profiles</div><div class="sub">Auto-created on first job · searchable · persistent</div></div>
+          </div>
+          <div class="phase-body">
+            <ul class="feat">
+              <li>Customer lookup by phone — recognised customers auto-populate on new job</li>
+              <li>Full job history per customer across all branches</li>
+              <li>Name, phone, email stored and linked to every job</li>
+              <li>Customer list view — searchable and sortable</li>
+              <li>No duplicate profiles — phone-based deduplication</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="phase-blk">
+          <div class="phase-hd">
+            <div class="num">💻</div>
+            <div><div class="ttl">Device (Asset) Tracking</div><div class="sub">Configurable device fields per org</div></div>
+          </div>
+          <div class="phase-body">
+            <ul class="feat">
+              <li>Primary identifier — serial number, IMEI, or any label</li>
+              <li>Custom device fields set by admin — brand, model, colour, OS, etc.</li>
+              <li>Device linked to customer — full service history per device</li>
+              <li>Accessories received at intake — logged and displayed on job</li>
+              <li>Repeat devices recognised automatically on return visits</li>
+            </ul>
+          </div>
+        </div>
+        <div class="callout" style="margin-top:.8rem;">
+          <p>When a known customer walks in, front desk enters their phone number — name, last device, and previous job all appear instantly. New job creation takes under 60 seconds.</p>
+        </div>
+      </div>
+    </div>
+    <div class="footnote"><span>Modules: Customers + Assets</span><span>Persistent history across branches</span></div>
+  </section>
+
+  <!-- ═══════════════════════ SLIDE 8: BRANCHES + REPORTS ═══════════════════════ -->
+  <section class="slide sand">
+    <div class="eyebrow">Modules · Branches &amp; Reports</div>
+    <h2>Multi-branch visibility. Real numbers.</h2>
+    <div class="cols cols-top" style="gap:2.5rem;">
+      <div>
+        <div class="phase-blk">
+          <div class="phase-hd">
+            <div class="num">🏢</div>
+            <div><div class="ttl">Branch Management</div><div class="sub">Each branch is a fully independent unit</div></div>
+          </div>
+          <div class="phase-body">
+            <ul class="feat">
+              <li>Unlimited branches per organisation</li>
+              <li>Each branch gets its own job prefix — e.g. IIT-PUNE-001</li>
+              <li>Branch-level staff assignment — technicians work at specific branches</li>
+              <li>Manager scope is limited to assigned branches</li>
+              <li>Branch contact info and hours stored and displayed</li>
+              <li>Admin switches active branch from the top bar — all views filter accordingly</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="phase-blk">
+          <div class="phase-hd">
+            <div class="num">📊</div>
+            <div><div class="ttl">Reports</div><div class="sub">Branch-level and org-wide dashboards</div></div>
+          </div>
+          <div class="phase-body">
+            <ul class="feat">
+              <li>Jobs by status — live count across selected branch or all branches</li>
+              <li>Revenue summary — advance collected vs. final collected vs. outstanding</li>
+              <li>Technician workload — jobs open per technician</li>
+              <li>Overdue jobs — flagged by estimated delivery date</li>
+              <li>Date-range filtering — daily, weekly, monthly snapshots</li>
+              <li>Admin sees all branches; managers see their own</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footnote"><span>Modules: Branches + Reports</span><span>Unlimited branches · single consolidated view</span></div>
+  </section>
+
+  <!-- ═══════════════════════ SLIDE 9: SETTINGS + TEAM ═══════════════════════ -->
+  <section class="slide">
+    <div class="eyebrow">Modules · Settings &amp; Team</div>
+    <h2>Configure the platform. Manage your people.</h2>
+    <div class="cols cols-top" style="gap:2.5rem;">
+      <div>
+        <div class="phase-blk">
+          <div class="phase-hd">
+            <div class="num">⚙️</div>
+            <div><div class="ttl">Org Settings</div><div class="sub">Admin-only configuration panel</div></div>
+          </div>
+          <div class="phase-body">
+            <ul class="feat">
+              <li>Organisation name, slug, and status</li>
+              <li>Brand colour — applied platform-wide via CSS theming</li>
+              <li>Custom device fields — define what your technicians capture at intake</li>
+              <li>Notification triggers — configure which job events fire WhatsApp alerts</li>
+              <li>Logo upload — displayed in the portal and on invoices</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="phase-blk">
+          <div class="phase-hd">
+            <div class="num">👤</div>
+            <div><div class="ttl">Team &amp; User Management</div><div class="sub">Add members · assign roles · control access</div></div>
+          </div>
+          <div class="phase-body">
+            <ul class="feat">
+              <li>Add team members directly — no email invite needed</li>
+              <li>Assign role: Admin, Manager, Technician, or Front Desk</li>
+              <li>Assign branch access — technicians can be multi-branch</li>
+              <li>Activate / deactivate accounts — no deletion, full history preserved</li>
+              <li>Admin sees all members; role enforcement is automatic via RLS</li>
+            </ul>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:.5rem; margin-top:.8rem;">
+          <div style="text-align:center; background:var(--sand); border-radius:10px; padding:.7rem .4rem;">
+            <div style="font-size:1.5rem; margin-bottom:.3rem;">👑</div>
+            <div style="font-size:.72rem; font-weight:700; color:#991b1b;">Admin</div>
+            <div style="font-size:.65rem; color:var(--muted); margin-top:.2rem; line-height:1.3;">All branches, all data, all settings</div>
+          </div>
+          <div style="text-align:center; background:var(--sand); border-radius:10px; padding:.7rem .4rem;">
+            <div style="font-size:1.5rem; margin-bottom:.3rem;">🗂️</div>
+            <div style="font-size:.72rem; font-weight:700; color:#1d4ed8;">Manager</div>
+            <div style="font-size:.65rem; color:var(--muted); margin-top:.2rem; line-height:1.3;">Assigned branches, reports, team view</div>
+          </div>
+          <div style="text-align:center; background:var(--sand); border-radius:10px; padding:.7rem .4rem;">
+            <div style="font-size:1.5rem; margin-bottom:.3rem;">🔨</div>
+            <div style="font-size:.72rem; font-weight:700; color:#166534;">Technician</div>
+            <div style="font-size:.65rem; color:var(--muted); margin-top:.2rem; line-height:1.3;">Own jobs, notes, parts, status</div>
+          </div>
+          <div style="text-align:center; background:var(--sand); border-radius:10px; padding:.7rem .4rem;">
+            <div style="font-size:1.5rem; margin-bottom:.3rem;">🖥️</div>
+            <div style="font-size:.72rem; font-weight:700; color:#a16207;">Front Desk</div>
+            <div style="font-size:.65rem; color:var(--muted); margin-top:.2rem; line-height:1.3;">Create jobs, payments, customers</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footnote"><span>Modules: Settings + Team</span><span>Row-level security enforced at the database layer</span></div>
+  </section>
+
+  <!-- ═══════════════════════ SLIDE 10: CUSTOMER PORTAL + NOTIFICATIONS ═══════════════════════ -->
+  <section class="slide sand">
+    <div class="eyebrow">Modules · Customer Portal &amp; Notifications</div>
+    <h2>The customer experience, solved.</h2>
+    <div class="cols cols-top" style="gap:2.5rem;">
+      <div>
+        <div class="phase-blk">
+          <div class="phase-hd">
+            <div class="num">🌐</div>
+            <div><div class="ttl">Customer Portal</div><div class="sub">Token-secured · no login · works on any phone</div></div>
+          </div>
+          <div class="phase-body">
+            <ul class="feat">
+              <li>Unique portal link sent to customer at job creation via WhatsApp</li>
+              <li>Token-based access — no account or password needed</li>
+              <li>Shows: job status, device details, estimated delivery, notes shared by technician</li>
+              <li>Displays parts and labour items on the estimate</li>
+              <li>Live status — updates as the job progresses</li>
+              <li>Branded with the service centre's name and colour</li>
+              <li>Works on mobile, tablet, desktop — full PWA support</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="phase-blk">
+          <div class="phase-hd">
+            <div class="num">💬</div>
+            <div><div class="ttl">Automated Notifications</div><div class="sub">WhatsApp + SMS via Edge Function</div></div>
+          </div>
+          <div class="phase-body">
+            <ul class="feat">
+              <li>Triggered automatically on status transitions — no manual action</li>
+              <li>Configurable per org — admin chooses which events send alerts</li>
+              <li>Default triggers: Job Received, Estimate Sent, Ready for Collection, Delivered</li>
+              <li>Message includes: job number, status, branch name, branch phone</li>
+              <li>Portal link included in every message — one tap to check status</li>
+              <li>Serverless Edge Function — fires in under 2 seconds</li>
+            </ul>
+          </div>
+        </div>
+        <div class="callout" style="margin-top:.8rem;">
+          <p>A customer who calls to ask "is it ready?" is a customer the portal failed to reach. With automated WhatsApp alerts, they already know before they think to call.</p>
+        </div>
+      </div>
+    </div>
+    <div class="footnote"><span>Modules: Customer Portal + Notifications</span><span>Zero inbound calls for status updates</span></div>
+  </section>
+
+  <!-- ═══════════════════════ SLIDE 11: PLATFORM ADMIN ═══════════════════════ -->
+  <section class="slide">
+    <div class="eyebrow">Module · Platform Admin</div>
+    <h2>Multi-tenant. One deployment. Many chains.</h2>
+    <div class="cols cols-top" style="gap:3rem;">
+      <div>
+        <p style="margin-bottom:1.2rem;">ServiceDesk is built as a true multi-tenant SaaS — not a single-org tool. The Platform Admin module lets the platform operator onboard and manage multiple service chains from a single control panel.</p>
+        <div class="phase-blk">
+          <div class="phase-hd">
+            <div class="num">🛡️</div>
+            <div><div class="ttl">Platform Admin Panel</div><div class="sub">Operator-only · gated by platform admin email</div></div>
+          </div>
+          <div class="phase-body">
+            <ul class="feat">
+              <li>List all organisations on the platform — name, slug, status, created date</li>
+              <li>Onboard a new service chain — create org, first admin, initial branches</li>
+              <li>Activate or suspend an organisation — instant platform-wide effect</li>
+              <li>Impersonate any org for support and troubleshooting</li>
+              <li>Access gated by PLATFORM_ADMIN_EMAIL env var — not a database role</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--green-800); border-radius:16px; padding:1.4rem 1.6rem; margin-bottom:1rem;">
+          <div style="font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.14em; color:var(--green-200); margin-bottom:.8rem;">Multi-tenant architecture</div>
+          <ul style="list-style:none; display:flex; flex-direction:column; gap:.6rem;">
+            <li style="display:flex; gap:.7rem; align-items:flex-start; color:#fff; font-size:.95rem;">
+              <span style="color:var(--terra-100); font-size:1rem; margin-top:.05rem;">✦</span>
+              <span>Every table has <code style="background:rgba(255,255,255,.12); border-radius:4px; padding:.1rem .4rem; font-size:.85rem;">org_id NOT NULL</code> — data never bleeds across tenants</span>
+            </li>
+            <li style="display:flex; gap:.7rem; align-items:flex-start; color:#fff; font-size:.95rem;">
+              <span style="color:var(--terra-100); font-size:1rem; margin-top:.05rem;">✦</span>
+              <span>Supabase Row Level Security (RLS) enforces isolation at the database layer — not the app layer</span>
+            </li>
+            <li style="display:flex; gap:.7rem; align-items:flex-start; color:#fff; font-size:.95rem;">
+              <span style="color:var(--terra-100); font-size:1rem; margin-top:.05rem;">✦</span>
+              <span>Each org has its own branding, notification config, device fields, and team — fully independent</span>
+            </li>
+            <li style="display:flex; gap:.7rem; align-items:flex-start; color:#fff; font-size:.95rem;">
+              <span style="color:var(--terra-100); font-size:1rem; margin-top:.05rem;">✦</span>
+              <span>Single deployment on Vercel serves all tenants — zero per-tenant infrastructure</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footnote"><span>Module: Platform Admin</span><span>One deployment · unlimited tenants</span></div>
+  </section>
+
+  <!-- ═══════════════════════ SLIDE 12: USER LIFECYCLE ═══════════════════════ -->
+  <section class="slide sand">
+    <div class="eyebrow">User lifecycle</div>
+    <h2 style="margin-bottom:.6rem;">A job from start to finish. Exactly how it flows.</h2>
+
+    <!-- Timeline row -->
+    <div class="lc-row" style="margin-bottom:1.1rem;">
+      <div class="lc-step">
+        <div class="lc-dot" style="background:var(--terra);">1</div>
+        <div class="lc-label">Walk-in</div>
+        <div class="lc-sub">Customer arrives with device</div>
+      </div>
+      <div class="lc-step">
+        <div class="lc-dot">2</div>
+        <div class="lc-label">Intake</div>
+        <div class="lc-sub">Front desk creates job</div>
+      </div>
+      <div class="lc-step">
+        <div class="lc-dot">3</div>
+        <div class="lc-label">Inspect</div>
+        <div class="lc-sub">Tech diagnoses device</div>
+      </div>
+      <div class="lc-step">
+        <div class="lc-dot">4</div>
+        <div class="lc-label">Estimate</div>
+        <div class="lc-sub">Parts + labour sent via WA</div>
+      </div>
+      <div class="lc-step">
+        <div class="lc-dot">5</div>
+        <div class="lc-label">Approve</div>
+        <div class="lc-sub">Customer confirms</div>
+      </div>
+      <div class="lc-step">
+        <div class="lc-dot">6</div>
+        <div class="lc-label">Repair</div>
+        <div class="lc-sub">Parts ordered + work done</div>
+      </div>
+      <div class="lc-step">
+        <div class="lc-dot">7</div>
+        <div class="lc-label">Ready</div>
+        <div class="lc-sub">WA alert → collect</div>
+      </div>
+      <div class="lc-step">
+        <div class="lc-dot" style="background:var(--green-700);">8</div>
+        <div class="lc-label">Delivered</div>
+        <div class="lc-sub">Payment done · Job closed</div>
+      </div>
+    </div>
+
+    <!-- Who does what -->
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:.8rem;">
+      <div class="card" style="padding:.9rem 1rem;">
+        <div style="display:flex; align-items:center; gap:.5rem; margin-bottom:.5rem;">
+          <span class="role-badge rb-fd">Front Desk</span>
+        </div>
+        <ul class="feat" style="margin-top:0;">
+          <li style="font-size:.88rem; padding:.3rem 0 .3rem 1.6rem;">Creates the job (step 2)</li>
+          <li style="font-size:.88rem; padding:.3rem 0 .3rem 1.6rem;">Records advance payment</li>
+          <li style="font-size:.88rem; padding:.3rem 0 .3rem 1.6rem;">Marks delivered + final payment (step 8)</li>
+          <li style="font-size:.88rem; padding:.3rem 0 .3rem 1.6rem;">Handles customer queries via portal link</li>
+        </ul>
+      </div>
+      <div class="card" style="padding:.9rem 1rem;">
+        <div style="display:flex; align-items:center; gap:.5rem; margin-bottom:.5rem;">
+          <span class="role-badge rb-tech">Technician</span>
+        </div>
+        <ul class="feat" style="margin-top:0;">
+          <li style="font-size:.88rem; padding:.3rem 0 .3rem 1.6rem;">Inspects and diagnoses (step 3)</li>
+          <li style="font-size:.88rem; padding:.3rem 0 .3rem 1.6rem;">Adds parts + labour to estimate (step 4)</li>
+          <li style="font-size:.88rem; padding:.3rem 0 .3rem 1.6rem;">Adds internal notes through repair</li>
+          <li style="font-size:.88rem; padding:.3rem 0 .3rem 1.6rem;">Moves job to Ready (step 7)</li>
+        </ul>
+      </div>
+      <div class="card" style="padding:.9rem 1rem;">
+        <div style="display:flex; align-items:center; gap:.5rem; margin-bottom:.5rem;">
+          <span class="role-badge rb-mgr">Manager</span>
+        </div>
+        <ul class="feat" style="margin-top:0;">
+          <li style="font-size:.88rem; padding:.3rem 0 .3rem 1.6rem;">Monitors branch job board</li>
+          <li style="font-size:.88rem; padding:.3rem 0 .3rem 1.6rem;">Sees overdue and pending jobs</li>
+          <li style="font-size:.88rem; padding:.3rem 0 .3rem 1.6rem;">Reviews technician workloads</li>
+          <li style="font-size:.88rem; padding:.3rem 0 .3rem 1.6rem;">Pulls daily / weekly reports</li>
+        </ul>
+      </div>
+      <div class="card" style="padding:.9rem 1rem;">
+        <div style="display:flex; align-items:center; gap:.5rem; margin-bottom:.5rem;">
+          <span class="role-badge rb-admin">Admin</span>
+        </div>
+        <ul class="feat" style="margin-top:0;">
+          <li style="font-size:.88rem; padding:.3rem 0 .3rem 1.6rem;">Sees all branches + all jobs</li>
+          <li style="font-size:.88rem; padding:.3rem 0 .3rem 1.6rem;">Manages team + settings</li>
+          <li style="font-size:.88rem; padding:.3rem 0 .3rem 1.6rem;">Configures notification triggers</li>
+          <li style="font-size:.88rem; padding:.3rem 0 .3rem 1.6rem;">Pulls org-wide revenue reports</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footnote"><span>User Lifecycle</span><span>Every action logged · every role scoped · no gaps</span></div>
+  </section>
+
+  <!-- ═══════════════════════ SLIDE 13: LEAD CAPTURING & SERVICING ═══════════════════════ -->
+  <section class="slide">
+    <div class="eyebrow">Lead Capturing &amp; Servicing</div>
+    <h2>Turn every enquiry into a tracked job.</h2>
+    <div class="cols cols-top" style="gap:2.5rem;">
+      <div>
+        <div class="phase-blk">
+          <div class="phase-hd">
+            <div class="num">📥</div>
+            <div><div class="ttl">Lead Capture Channels</div><div class="sub">Every enquiry lands in one place</div></div>
+          </div>
+          <div class="phase-body">
+            <ul class="feat">
+              <li><strong>Walk-in:</strong> Front desk registers the customer and device in under 60 seconds — job number generated instantly</li>
+              <li><strong>Phone enquiry:</strong> Log a pending job with customer details and issue description before the device arrives</li>
+              <li><strong>WhatsApp / referral:</strong> Create a job entry with customer contact — status set to "Received" to hold the slot</li>
+              <li><strong>Repeat customer:</strong> Phone number lookup surfaces full history — intake is one click</li>
+              <li><strong>Multi-branch:</strong> Any branch can capture a lead independently; admin sees all sources in one dashboard</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="phase-blk">
+          <div class="phase-hd">
+            <div class="num">🎯</div>
+            <div><div class="ttl">Lead-to-Job Servicing Flow</div><div class="sub">No lead falls through the cracks</div></div>
+          </div>
+          <div class="phase-body">
+            <ul class="feat">
+              <li><strong>Assign immediately:</strong> Choose a technician at intake or reassign any time — technician is notified</li>
+              <li><strong>Estimate first:</strong> Parts and labour added before work starts — customer approves via WhatsApp before the repair begins</li>
+              <li><strong>Transparent servicing:</strong> Customer portal shows live status, notes, and parts — they stay informed without calling</li>
+              <li><strong>Overdue alerts:</strong> Manager dashboard flags jobs past their estimated delivery date — nothing slips past</li>
+              <li><strong>Payment on delivery:</strong> Advance collected at intake, balance recorded at delivery — full payment trail per job</li>
+            </ul>
+          </div>
+        </div>
+        <div class="callout" style="margin-top:.8rem;">
+          <p>Every lead that walks in or calls gets a job number, a portal link, and a WhatsApp confirmation — before a single screwdriver is picked up.</p>
+        </div>
+      </div>
+    </div>
+    <div class="footnote"><span>Lead Capturing &amp; Servicing</span><span>Zero lost leads · full payment trail · manager visibility</span></div>
+  </section>
+
+  <!-- ═══════════════════════ SLIDE 14: CLOSING ═══════════════════════ -->
+  <section class="slide hero">
+    <div style="margin:auto 0; position:relative; z-index:1;">
+      <div class="eyebrow">Next step</div>
+      <h1>ServiceDesk is live.<br/><span style="color:var(--terra);">Ready to onboard.</span></h1>
+      <p class="tag" style="margin-top:1.2rem;">8 modules, real jobs running, 4 roles, unlimited branches. What would it take to go live at your service centre?</p>
+      <div class="badge-row">
+        <span class="pill">🔧 Jobs + Customers</span>
+        <span class="pill">📊 Reports + Branches</span>
+        <span class="pill">🌐 Customer Portal</span>
+        <span class="pill">💬 WhatsApp Alerts</span>
+      </div>
+      <div style="background:var(--green-800); border-radius:16px; padding:1.2rem 1.6rem; margin-top:1.5rem; display:inline-flex; align-items:center; gap:1.5rem; flex-wrap:wrap;">
+        <span style="color:var(--green-200); font-size:1rem; font-weight:600;">Aashish</span>
+        <span style="color:rgba(255,255,255,.3);">·</span>
+        <span style="color:var(--terra-100); font-size:1rem; font-weight:600;">aashish@perfectskills.in</span>
+        <span style="color:rgba(255,255,255,.3);">·</span>
+        <span style="color:var(--terra-100); font-size:1rem; font-weight:600;">+91-8530940761</span>
+      </div>
+    </div>
+    <div class="footnote">
+      <span>Confidential — Platform Awareness Deck · ServiceDesk</span>
+      <span>August 2026</span>
+    </div>
+  </section>
+
+</div>
+
+<div class="counter" id="counter">1 / 14</div>
+<div class="nav">
+  <button id="prev" aria-label="Previous slide">&#8249;</button>
+  <button id="next" aria-label="Next slide">&#8250;</button>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  let i = 0;
+  const counter  = document.getElementById('counter');
+  const progress = document.getElementById('progress');
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    counter.textContent  = (i + 1) + ' / ' + slides.length;
+    progress.style.width = ((i + 1) / slides.length * 100) + '%';
+  }
+  document.getElementById('next').onclick = () => show(i + 1);
+  document.getElementById('prev').onclick = () => show(i - 1);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); show(i + 1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')                    { e.preventDefault(); show(i - 1); }
+    if (e.key === 'Home') show(0);
+    if (e.key === 'End')  show(slides.length - 1);
+  });
+  show(0);
+</script>
+</body>
+</html>
